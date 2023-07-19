@@ -75,7 +75,7 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
     purrr::map(~dplyr::mutate(.x,FDR = p.adjust(Pvalue,method = "fdr")))
   
   #output
-  metadata(data_obj)[["association"]] = apppend(metadata(data_obj)[["association"]],asso_res)
+  metadata(data_obj)[["association"]] = append(metadata(data_obj)[["association"]],asso_res)
   
   return(data_obj)
 }

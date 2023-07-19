@@ -8,6 +8,7 @@
 #' @param gene_filter_setting A dplyr::filter expression string for gene filter across the "gene_info" slot in the object meta data. Not setting this indicating that all genes are going to be used.
 #' @param asso_model A linear model or spearman correlation ("linear" or "spearman") to test the association between cell type specificity score and MAGMA z-score. 
 #' @return A data frame (in metadata(data_obj)[["association"]] slot) containing association p_value, FDR. 
+#' @import magrittr
 #' @export
 #' 
 ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_model = "linear") {
@@ -47,6 +48,7 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
   model_gene = metadata(data_obj)[["gene_info"]] %>%
     dplyr::filter(!!rlang::parse_expr(gene_filter_setting)) %>%
     dplyr::pull(gene_name)
+  
   sscore_tb = sscore_tb %>% 
     dplyr::filter(gene_name %in% model_gene) %>%
     dplyr::inner_join(gene_zscore_df %>% dplyr::mutate(hsa_entrez = as.character(hsa_entrez)), by= c("gene_name"="hsa_entrez")) 
@@ -55,20 +57,26 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
   if(asso_model=="linear"){
     asso_res = sscore_tb %>%
       dplyr::group_by(across(all_of("cell_type"))) %>%
-      dplyr::summarise( across(colnames(gene_zscore_df)[2],  ~lm_pvalue(.x, sscore))) 
+      dplyr::summarise( across(colnames(gene_zscore_df)[-1],  ~lm_pvalue(.x, sscore))) 
   }else{
     asso_res = sscore_tb %>%
       dplyr::group_by(across(all_of("cell_type"))) %>%
-      dplyr::summarise( across(colnames(gene_zscore_df)[2],  ~spearman_pvalue(.x, sscore))) 
+      dplyr::summarise( across(colnames(gene_zscore_df)[-1],  ~spearman_pvalue(.x, sscore))) 
   }
   
+  #break to list
+  trait_name = gsub(colnames(gene_zscore_df)[-1], pattern="_zstat",replacement = "")
+  asso_res = purrr::map(2:ncol(asso_res), ~asso_res[,c(1,.x)]) %>%
+    purrr::set_names(trait_name) 
+  
+  #add FDR
   asso_res = asso_res %>%
-    magrittr::set_colnames(c("cell_type","Pvalue"))  %>%
-    mutate(FDR = p.adjust(Pvalue,method = "fdr"))
+    purrr::map(~magrittr::set_colnames(.x, c("cell_type","Pvalue"))) %>%
+    purrr::map(~dplyr::mutate(.x,FDR = p.adjust(Pvalue,method = "fdr")))
   
   #output
-  name = gsub(colnames(gene_zscore_df)[2],pattern="_zstat",replacement = "")
-  metadata(data_obj)[["association"]][[name]] = asso_res
+  metadata(data_obj)[["association"]] = apppend(metadata(data_obj)[["association"]],asso_res)
+  
   return(data_obj)
 }
 

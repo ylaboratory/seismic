@@ -28,13 +28,18 @@ add_gene_anno = function(data_obj, gene_anno, match_col=NULL) {
     }
     feature_name = names(gene_anno)
   }
-  #check if current index conflicts with the previous index
   
-  if ((!is.null(metadata(data_obj)[["gene_info"]])  ) & (!any(feature_name %in% metadata(data_obj)[["gene_info"]][["gene_name"]])) ){
-    stop("Something seemed to be wrong, your gene index does not match the existing one")
+  #check if current index conflicts with the previous index
+  if (!is.null(metadata(data_obj)[["gene_info"]])){
+    common_feature = intersect(feature_name, metadata(data_obj)[["gene_info"]][["gene_name"]]) 
+    if (length(common_features)==0){
+      stop("Something seemed to be wrong, your gene index does not match the existing one")
+    }else if(length(common_feature) < 0.5* length(feature_name)){
+      warning("The gene ids of the gene meta data poorly map the existing one.")
+    }
   }
   
-  ## add 
+  ## add annotation
   if (is.null(metadata(data_obj)[["gene_info"]])){
     metadata(data_obj)[["gene_info"]] = data.frame(gene_name = feature_name)
   }

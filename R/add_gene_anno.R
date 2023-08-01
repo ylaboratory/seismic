@@ -32,7 +32,7 @@ add_gene_anno = function(data_obj, gene_anno, match_col=NULL) {
   #check if current index conflicts with the previous index
   if (!is.null(metadata(data_obj)[["gene_info"]])){
     common_feature = intersect(feature_name, metadata(data_obj)[["gene_info"]][["gene_name"]]) 
-    if (length(common_features)==0){
+    if (length(common_feature)==0){
       stop("Something seemed to be wrong, your gene index does not match the existing one")
     }else if(length(common_feature) < 0.5* length(feature_name)){
       warning("The gene ids of the gene meta data poorly map the existing one.")

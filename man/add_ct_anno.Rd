@@ -15,7 +15,7 @@ add_ct_anno(data_obj, ct_anno, match_col = NULL)
 \item{match_col}{To specify, only when a tibble or a data frame input is given, which column should match that of the feature names?}
 }
 \value{
-A SincleCellExperiment object,
+A SincleCellExperiment object
 }
 \description{
 Add cell-type level annotation

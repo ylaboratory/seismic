@@ -2,16 +2,22 @@
 % Please edit documentation in R/cal_sscore.R
 \name{cal_sscore}
 \alias{cal_sscore}
-\title{Compute group level specificity score for genes.}
+\title{Compute group level specificity score for genes.
+This can be enhanced by specifying the rule to choose out groups (cell groups that are considered as background cells for a cell group)}
 \usage{
-cal_sscore(data_obj)
+cal_sscore(data_obj, out_group_mat = NULL)
 }
 \arguments{
 \item{data_obj}{SingleCellExperiment object or a tibble from cal_stat() function. The meta data contain the basic statistics for specificity score computation.}
+
+\item{out_group_mat}{A matrix to specify how to choose out groups. Each row indicate if all other cell groups (in the corresponding column) are (TRUE) or are not (FALSE) out groups.
+Rows and columns should be named with the cell group names in the previous step. It's recommended to add both row names and column names to the out group matrix.
+If there aren't any names, the rows and columns should present the same order as in the cell groups (given in metadata(data_obj)[\link{"group_info"}])}
 }
 \value{
 A SingleCellExperiment object or a tibble, depending on the input type
 }
 \description{
 Compute group level specificity score for genes.
+This can be enhanced by specifying the rule to choose out groups (cell groups that are considered as background cells for a cell group)
 }

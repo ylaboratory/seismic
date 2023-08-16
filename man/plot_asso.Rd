@@ -9,7 +9,7 @@ plot_asso(
   trait,
   show_value = "FDR",
   plot_top_option = NULL,
-  group_by = NULL,
+  group = NULL,
   significance = TRUE
 )
 }
@@ -20,7 +20,7 @@ plot_asso(
 
 \item{show_value}{Show FDR or Pvalue to plot as y-axis?}
 
-\item{group_by}{Which annotation column used for grouping?}
+\item{group}{Which annotation column used for grouping?}
 
 \item{significance}{To label significance level or not? By default the FDR 0.1 is asterisk, FDR 0.05 is double asterisk, FDR 0.01 is triple asterisk}
 

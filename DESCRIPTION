@@ -19,6 +19,7 @@ Imports:
     ggplot2,
     magrittr,
     Matrix,
+    speedglm,
     sparseMatrixStats,
     dplyr (>= 1.1.0),
     tidyr,

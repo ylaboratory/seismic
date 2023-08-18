@@ -61,7 +61,7 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
   }else{
     asso_res = sscore_tb %>%
       dplyr::group_by(across(all_of("cell_type"))) %>%
-      dplyr::summarise( across(colnames(gene_zscore_df)[-1],  ~spearman_pvalue(.x, sscore))) 
+      dplyr::summarise( across(colnames(gene_zscore_df)[-1],  ~spearman_pvalue(.x, sscore)))
   }
   
   #break to list
@@ -72,7 +72,8 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
   #add FDR
   asso_res = asso_res %>%
     purrr::map(~magrittr::set_colnames(.x, c("cell_type","Pvalue"))) %>%
-    purrr::map(~dplyr::mutate(.x,FDR = p.adjust(Pvalue,method = "fdr")))
+    purrr::map(~dplyr::mutate(.x,FDR = p.adjust(Pvalue,method = "fdr"))) %>%
+    purrr::map(~as.data.frame(.x))
   
   #output
   metadata(data_obj)[["association"]] = append(metadata(data_obj)[["association"]],asso_res)

@@ -14,6 +14,8 @@ Suggests:
 VignetteBuilder: knitr
 Imports:
     SingleCellExperiment,
+    SummarizedExperiment,
+    S4Vectors,
     ggplot2,
     magrittr,
     Matrix,

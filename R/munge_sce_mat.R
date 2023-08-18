@@ -5,32 +5,32 @@
 #' The gene meta data will be discarded
 #'
 #' @param data_obj SingleCellExperiment object
-#' @param assay_type name of the assay for the mapping. By default it will be all assays. 
+#' @param assay_name name of the assay for the mapping. By default it will be all assays. 
 #' @param mapping_df A data frame to specify the mapping. The first column should contain all the feature names while the second column indicates the new feature names to be mapped to.
 #' @param multi_mapping How to translate feature name when multiple mapping exists?? By "mean" value or "sum" value? (sum for default)
 #' @return A SingleCellExperiment object 
 #' @importFrom S4Vectors DataFrame
 #' @export
 #' 
-munge_sce_mat = function(data_obj,  mapping_df, assay_type = "all",multi_mapping = "sum") {
+munge_sce_mat = function(data_obj,  mapping_df, assay_name = "all",multi_mapping = "sum") {
   #check if the assay exists
-  if ( assay_type != "all" & !assay_type %in% SummarizedExperiment::assayNames(data_obj)){
+  if ( assay_name != "all" & !assay_name %in% SummarizedExperiment::assayNames(data_obj)){
     stop("The assay you are indicating does not exist")
   }
   #check if the feature name is correct
   if( is.null(rownames(data_obj)) | !any( rownames(data_obj) %in% (mapping_df %>% dplyr::pull(1))) ){
     stop("The feature names do not match the first column of the mapping_df")
   }
-  if (assay_type=="all"){
-    assay_type =  SummarizedExperiment::assayNames(data_obj)
+  if (assay_name=="all"){
+    assay_name =  SummarizedExperiment::assayNames(data_obj)
   }
   
   #merge
   new_assay = list()
   mapping_df = mapping_df %>% mutate_all(~as.character(.))
   
-  for (assay_name in assay_type){
-    data_mat = SummarizedExperiment::assay(data_obj, assay_name)
+  for (assay_name_i in assay_name){
+    data_mat = SummarizedExperiment::assay(data_obj, assay_name_i)
     #filter mapping
     all_mapping = mapping_df %>% 
       dplyr::filter(.[[1]] %in% rownames(data_mat)) %>% #filter by feature names
@@ -62,7 +62,7 @@ munge_sce_mat = function(data_obj,  mapping_df, assay_type = "all",multi_mapping
     #add assay
     new_assay = new_assay %>% append(data_mat)
   }
-  new_assay = new_assay %>% purrr::set_names(assay_type)
+  new_assay = new_assay %>% purrr::set_names(assay_name)
   
   #create output data object
   out_data = SingleCellExperiment::SingleCellExperiment(

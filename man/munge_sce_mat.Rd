@@ -4,14 +4,14 @@
 \alias{munge_sce_mat}
 \title{Map feature (gene) names (row names) to either entrez or other format}
 \usage{
-munge_sce_mat(data_obj, mapping_df, assay_type = "all", multi_mapping = "sum")
+munge_sce_mat(data_obj, mapping_df, assay_name = "all", multi_mapping = "sum")
 }
 \arguments{
 \item{data_obj}{SingleCellExperiment object}
 
 \item{mapping_df}{A data frame to specify the mapping. The first column should contain all the feature names while the second column indicates the new feature names to be mapped to.}
 
-\item{assay_type}{name of the assay for the mapping. By default it will be all assays.}
+\item{assay_name}{name of the assay for the mapping. By default it will be all assays.}
 
 \item{multi_mapping}{How to translate feature name when multiple mapping exists?? By "mean" value or "sum" value? (sum for default)}
 }

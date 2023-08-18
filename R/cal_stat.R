@@ -17,7 +17,7 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
   }
   
   #check assay_name exists in data_obj
-  if (!assay_name %in% assayNames(data_obj)) {
+  if (!assay_name %in% SummarizedExperiment::assayNames(data_obj)) {
     stop(paste0("Assay '", assay_name, "' does not exist in the SingleCellExperiment object."))
   }
   
@@ -31,11 +31,11 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
     message("There seems to be a mismatch between cells in the data_mat and the meta_data. Check it carefully.")
   }
   
-  data_mat = assay(data_obj, assay_name)
-  feature_name = rownames(rowData(data_obj))
+  data_mat = SummarizedExperiment::assay(data_obj, assay_name)
+  feature_name = rownames(SummarizedExperiment::rowData(data_obj))
   #calculate cell num
   if (is.null(meta_data)){
-    ident_group = colData(data_obj)[[group]]
+    ident_group = SummarizedExperiment::colData(data_obj)[[group]]
   }else{
     ident_group = meta_data %>% dplyr::pull(group)
   }

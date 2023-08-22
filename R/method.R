@@ -64,7 +64,8 @@ transform_sparse = function(x, fun = "log2") {
 #' @param metric Value to test association
 lm_pvalue = function(zscore, metric){
   f1 = which(is.finite(metric))
-  asso_lm = speedglm::speedglm(zscore[f1]~metric[f1]) #the function will automatically drop the NA values but cannot deal with metric 
+  asso_lm = speedglm::speedlm(zscore[f1]~metric[f1]) #the function will automatically drop the NA values but cannot deal with metric 
+  #asso_lm = lm(zscore[f1]~metric[f1])
   lm_sum = summary(asso_lm)$coefficients
   if(lm_sum[2,1]<0) return(1-lm_sum[2,4]/2)
   return(lm_sum[2,4]/2)

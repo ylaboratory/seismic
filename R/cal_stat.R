@@ -42,18 +42,21 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
   factor_mat = Matrix::fac2sparse(factor(ident_group, levels = unique(ident_group))) #model matrix
   cell_num = factor_mat %*% rep(1, length(ident_group)) %>% as.vector() %>% stats::setNames(unique(ident_group))
   #calculate mean
-  sum_mat = factor_mat %*% Matrix::t(data_mat)
+  #sum_mat = factor_mat %*% Matrix::t(data_mat)
+  sum_mat = Matrix::t(data_mat %*% Matrix::t(factor_mat) )
   mean_mat = sum_mat %>% sweep_sparse(margin = 1, stats = cell_num , fun="/") %>%  #get mean expression matrix
     magrittr::set_colnames(feature_name) %>% 
     magrittr::set_rownames(unique(ident_group ))
   #calculate variance 
   #var_mat = (factor_mat %*% (data_mat - t(factor_mat) %*% mean_mat)^2) %>%    #get variance matrix
-  var_mat = (factor_mat %*% Matrix::t(data_mat)^2 - 2*mean_mat*sum_mat + sweep_sparse(mean_mat^2, margin = 1, stats = cell_num , fun="*")) %>%  
+  #var_mat =  factor_mat %*% Matrix::t(data_mat^2) 
+  var_mat = (Matrix::t(data_mat^2 %*% Matrix::t(factor_mat) ) - 2*mean_mat*sum_mat + sweep_sparse(mean_mat^2, margin = 1, stats = cell_num , fun="*")) %>%  
     sweep_sparse(margin = 1, stats = cell_num-1 , fun="/") %>% 
     magrittr::set_colnames(feature_name) %>% 
     magrittr::set_rownames(unique(ident_group ))
-  #calculate ratio  
-  ratio_mat = (factor_mat %*% (Matrix::t(data_mat) > 0))%>% 
+  #calculate ratio 
+  #ratio_mat = (factor_mat %*% (Matrix::t(data_mat) > 0))%>% 
+  ratio_mat = Matrix::t( (data_mat >0) %*% Matrix::t(factor_mat) ) %>% 
     sweep_sparse(margin = 1, stats = cell_num , fun="/") %>%
     magrittr::set_colnames(feature_name) %>% 
     magrittr::set_rownames(unique(ident_group ))
@@ -78,7 +81,7 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
       dplyr::left_join(ratio_mat %>% as.matrix %>% dplyr::as_tibble(rownames="cellgroup") %>% tidyr::pivot_longer(cols=all_of(feature_name), names_to = "genename", values_to="ratio"), by=c("cellgroup"="cellgroup","genename"="genename")) 
     return(out_stat)
   }else{
-    metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat, var_mat, ratio_mat) %>% purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat"))
+    S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat, var_mat, ratio_mat) %>% purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat"))
   }
   return(data_obj)
 }

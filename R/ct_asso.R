@@ -13,14 +13,14 @@
 #' 
 ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_model = "linear") {
   #check data
-  if (is.null(metadata(data_obj)[["group_info"]][["sscore"]]) ){
+  if (is.null(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]) ){
     stop("You should first calculate specificity score ")
   }
   #gene filter setting
   if ((!is.null(gene_filter_setting))){
-    if (is.null(metadata(data_obj)[["gene_info"]])){
+    if (is.null(S4Vectors::metadata(data_obj)[["gene_info"]])){
       stop("Please add gene annotation using 'add_gene_anno()' or 'add_glob_stat()'.")
-    }else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(metadata(data_obj)[["gene_info"]]))){
+    }else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(S4Vectors::metadata(data_obj)[["gene_info"]]))){
       stop("Something's wrong with the gene_filter_setting. Not all columns exist. ")
     }
   }
@@ -29,23 +29,23 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
     stop("Please indicate the right model.")
   }
   #check if gene_zscore data look good
-  if(length( intersect( colnames(metadata(data_obj)[["group_info"]][["sscore"]]), gene_zscore_df[[1]]) )==0){
+  if(length( intersect( colnames(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]), gene_zscore_df[[1]]) )==0){
     stop("The gene_zscore_df have no genes mapping to the current specificity score gene entry, you may first map genes to the same gene id type.")
   }
   
   #check gene mapping
-  if(!any(as.character(gene_zscore_df[[1]]) %in% as.character(colnames(metadata(data_obj)[["group_info"]][["sscore"]])))){
+  if(!any(as.character(gene_zscore_df[[1]]) %in% as.character(colnames(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]])))){
     stop("Specificity score do not have the same gene id type as the z_score_df, you may first do mapping between them using trans_mmu_to_hsa_stat()")
   }
   
   #expand to a tibble
-  sscore_tb = metadata(data_obj)[["group_info"]][["sscore"]] %>%
+  sscore_tb = S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]] %>%
     as.matrix() %>%
     dplyr::as_tibble(rownames = "cell_type") %>%
     tidyr::pivot_longer(!cell_type,names_to = "gene_name",values_to = "sscore")
   
   #filter genes 
-  model_gene = metadata(data_obj)[["gene_info"]] %>%
+  model_gene = S4Vectors::metadata(data_obj)[["gene_info"]] %>%
     dplyr::filter(!!rlang::parse_expr(gene_filter_setting)) %>%
     dplyr::pull(gene_name)
   
@@ -76,7 +76,7 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
     purrr::map(~as.data.frame(.x))
   
   #output
-  metadata(data_obj)[["association"]] = append(metadata(data_obj)[["association"]],asso_res)
+  S4Vectors::metadata(data_obj)[["association"]] = append(S4Vectors::metadata(data_obj)[["association"]],asso_res)
   
   return(data_obj)
 }

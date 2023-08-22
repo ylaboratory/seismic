@@ -30,8 +30,8 @@ add_gene_anno = function(data_obj, gene_anno, match_col=NULL) {
   }
   
   #check if current index conflicts with the previous index
-  if (!is.null(metadata(data_obj)[["gene_info"]])){
-    common_feature = intersect(feature_name, metadata(data_obj)[["gene_info"]][["gene_name"]]) 
+  if (!is.null(S4Vectors::metadata(data_obj)[["gene_info"]])){
+    common_feature = intersect(feature_name, S4Vectors::metadata(data_obj)[["gene_info"]][["gene_name"]]) 
     if (length(common_feature)==0){
       stop("Something seemed to be wrong, your gene index does not match the existing one")
     }else if(length(common_feature) < 0.5* length(feature_name)){
@@ -40,8 +40,8 @@ add_gene_anno = function(data_obj, gene_anno, match_col=NULL) {
   }
   
   ## add annotation
-  if (is.null(metadata(data_obj)[["gene_info"]])){
-    metadata(data_obj)[["gene_info"]] = data.frame(gene_name = feature_name)
+  if (is.null(S4Vectors::metadata(data_obj)[["gene_info"]])){
+    S4Vectors::metadata(data_obj)[["gene_info"]] = data.frame(gene_name = feature_name)
   }
   if (is.vector(gene_anno)){
     name = deparse(substitute(gene_anno))
@@ -49,15 +49,15 @@ add_gene_anno = function(data_obj, gene_anno, match_col=NULL) {
   }
   
   #remove duplicate columns in gene_info: update them
-  duplicated_col = colnames(metadata(data_obj)[["gene_info"]])[-1] %>% intersect(colnames(gene_anno))  
+  duplicated_col = colnames(S4Vectors::metadata(data_obj)[["gene_info"]])[-1] %>% intersect(colnames(gene_anno))  
   if (length(duplicated_col) >=1 ){
-    metadata(data_obj)[["gene_info"]] = metadata(data_obj)[["gene_info"]] %>% dplyr::select(-any_of(duplicated_col))
+    S4Vectors::metadata(data_obj)[["gene_info"]] = S4Vectors::metadata(data_obj)[["gene_info"]] %>% dplyr::select(-any_of(duplicated_col))
   }
   
   if (is.null(match_col)){
-    metadata(data_obj)[["gene_info"]] = metadata(data_obj)[["gene_info"]] %>% dplyr::full_join(gene_anno, by="gene_name") %>% as.data.frame()
+    S4Vectors::metadata(data_obj)[["gene_info"]] = S4Vectors::metadata(data_obj)[["gene_info"]] %>% dplyr::full_join(gene_anno, by="gene_name") %>% as.data.frame()
   }else{
-    metadata(data_obj)[["gene_info"]] = metadata(data_obj)[["gene_info"]] %>% dplyr::full_join(gene_anno, by=c("gene_name"=match_col)) %>% as.data.frame()
+    S4Vectors::metadata(data_obj)[["gene_info"]] = S4Vectors::metadata(data_obj)[["gene_info"]] %>% dplyr::full_join(gene_anno, by=c("gene_name"=match_col)) %>% as.data.frame()
   }
   
   return(data_obj)

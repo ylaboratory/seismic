@@ -22,17 +22,17 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
     stop("The gene_mapping_table is not fine or the columns of 'from' and 'to' do not exist in the table")
   }
   #check metadata slots 
-  if (is.null(metadata(data_obj)[["group_info"]])|(metadata_type!="all" & (!metadata_type %in% c("ratio","mean_mat","var_mat","ratio_mat","sscore")))){
+  if (is.null(S4Vectors::metadata(data_obj)[["group_info"]])|(metadata_type!="all" & (!metadata_type %in% c("ratio","mean_mat","var_mat","ratio_mat","sscore")))){
     stop("The meta data slot does not exist")
   }
   #check feature names
   if (metadata_type=="all"){
-    all_names = names(metadata(data_obj)[["group_info"]]) %>%
+    all_names = names(S4Vectors::metadata(data_obj)[["group_info"]]) %>%
       .[.!="cell_num"] %>%
-      purrr::map(~colnames(metadata(data_obj)[["group_info"]][[.x]])) %>%
+      purrr::map(~colnames(S4Vectors::metadata(data_obj)[["group_info"]][[.x]])) %>%
       purrr::reduce(~unique(c(.x,.y)))
   }else{
-    all_names = colnames(metadata(data_obj)[["group_info"]][[metadata_type]])
+    all_names = colnames(S4Vectors::metadata(data_obj)[["group_info"]][[metadata_type]])
   }
   if (!any(all_names %in% (gene_mapping_table %>% dplyr::pull(from)))){
     stop("Something's wrong. The feature names don't match the column in the gene_mapping_table")
@@ -44,13 +44,13 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
   
   if ( metadata_type=="all"){
     slots = c("mean_mat","var_mat","ratio_mat","sscore")
-    slots = slots[slots %in% names(metadata(data_obj)[["group_info"]])] #only existing slots
+    slots = slots[slots %in% names(S4Vectors::metadata(data_obj)[["group_info"]])] #only existing slots
   }else{
     slots = metadata_type
   }
   
   for (slot in slots){
-    data_mat = metadata(data_obj)[["group_info"]][[slot]]
+    data_mat = S4Vectors::metadata(data_obj)[["group_info"]][[slot]]
     #filter mapping
     all_mapping = gene_mapping_table %>% 
       dplyr::select(all_of(c(from,to))) %>% 
@@ -66,7 +66,7 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
     }
     data_mat = (data_mat %*% Matrix::t(fac_mat)) %>% 
       magrittr::set_colnames(unique(all_mapping[[to]]))
-    metadata(data_obj)[["group_info"]][[slot]] = data_mat
+    S4Vectors::metadata(data_obj)[["group_info"]][[slot]] = data_mat
   }
   return(data_obj)
 }

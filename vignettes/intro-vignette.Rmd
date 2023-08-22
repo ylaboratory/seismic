@@ -62,8 +62,9 @@ facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_e
 Finally the cell type specificity score can be used to determine
 ```{r}
 #load MAGMA z-score file
-t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Morris_2012/T2D.35.10.genes.out")
-mdd_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Howard_2019/MDD.35.10.genes.out")
+#t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/T2D_1.genes.out")
+t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Xue_2018/T2D.35.10.genes.out")
+mdd_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/MDD.genes.out")
 #perform cell type enrichment analysis 
 facs.sce = ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 facs.sce = ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")

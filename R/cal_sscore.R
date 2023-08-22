@@ -4,18 +4,18 @@
 #' @param data_obj SingleCellExperiment object or a tibble from cal_stat() function. The meta data contain the basic statistics for specificity score computation.
 #' @param out_group_mat A matrix to specify how to choose out groups. Each row indicate if all other cell groups (in the corresponding column) are (TRUE) or are not (FALSE) out groups. 
 #'                      Rows and columns should be named with the cell group names in the previous step. It's recommended to add both row names and column names to the out group matrix.
-#'                      If there aren't any names, the rows and columns should present the same order as in the cell groups (given in metadata(data_obj)[["group_info"]])
+#'                      If there aren't any names, the rows and columns should present the same order as in the cell groups (given in S4Vectors::metadata(data_obj)[["group_info"]])
 #' @return A SingleCellExperiment object or a tibble, depending on the input type
 #' @export
 
 cal_sscore = function(data_obj, out_group_mat = NULL){
   #check if the meta data is correct
-  if (is.null(metadata(data_obj)[["group_info"]]) | any(!c("cell_num","mean_mat","var_mat","ratio_mat") %in% names(metadata(data_obj)[["group_info"]]))){
+  if (is.null(S4Vectors::metadata(data_obj)[["group_info"]]) | any(!c("cell_num","mean_mat","var_mat","ratio_mat") %in% names(S4Vectors::metadata(data_obj)[["group_info"]]))){
     stop("Please run cal_stat() first")
   }
   
   #reshuffle out group matrix and check if it's correct
-  ct_names = metadata(data_obj)[["group_info"]][["cell_num"]] %>% names
+  ct_names = S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]] %>% names
   if(!is.null(out_group_mat)){
     if((!is.null(rownames(out_group_mat)) & any(! ct_names %in% rownames(out_group_mat))) | (is.null(rownames(out_group_mat)) & nrow(out_group_mat)!=length(ct_names) )){
       stop("The setting of rownames is wrong.")
@@ -32,10 +32,10 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   }
   
   #calculate relative expression
-  cell_num = metadata(data_obj)[["group_info"]][["cell_num"]]
-  mean_mat = metadata(data_obj)[["group_info"]][["mean_mat"]]
-  var_mat = metadata(data_obj)[["group_info"]][["var_mat"]]
-  ratio_mat = metadata(data_obj)[["group_info"]][["ratio_mat"]]
+  cell_num = S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]]
+  mean_mat = S4Vectors::metadata(data_obj)[["group_info"]][["mean_mat"]]
+  var_mat = S4Vectors::metadata(data_obj)[["group_info"]][["var_mat"]]
+  ratio_mat = S4Vectors::metadata(data_obj)[["group_info"]][["ratio_mat"]]
   
   ##out_group_num = sum(cell_num) - cell_num
   all_ones = matrix(1, nrow = length(cell_num), ncol = length(cell_num))
@@ -50,7 +50,7 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   #tot_var = sweep_sparse(var_mat, margin = 1, stats = cell_num-1, fun="*")
   #tot_mean_sq = sweep_sparse(mean_mat^2, margin = 1, stats = cell_num, fun="*")
   #out_variance = (all_ones %*% tot_var - tot_var + all_ones %*% tot_mean_sq - tot_mean_sq - sweep_sparse(out_mean^2, margin=1, stat = out_group_num, fun="*")) %>% 
-  #  sweep_sparse(margin=1,stats=out_group_num-1, fun="/")
+  #tot_var = sweep_sparse(margin=1,stats=out_group_num-1, fun="/")
   tot_var = sweep_sparse(var_mat, margin = 1, stats = cell_num-1, fun="*")
   tot_mean_sq = sweep_sparse(mean_mat^2, margin = 1, stats = cell_num, fun="*")
   out_variance = (out_group_mat %*% tot_var + out_group_mat %*% tot_mean_sq - sweep_sparse(out_mean^2, margin=1, stat = out_group_mat %*% cell_num,fun="*") ) %>%
@@ -63,7 +63,7 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   ##specificity score
   sscore = pnorm(as.matrix(rel_exp))*ratio_mat 
   sscore = sscore/(all_ones %*% sscore)
-  metadata(data_obj)[["group_info"]][["sscore"]] = sscore
+  S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]] = sscore
   
   return(data_obj)
 }

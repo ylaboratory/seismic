@@ -77,10 +77,10 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
   
   #output
   S4Vectors::metadata(data_obj)[["association"]] = append(S4Vectors::metadata(data_obj)[["association"]],asso_res)
-  
+  #only keep non-duplicated traits
+  S4Vectors::metadata(data_obj)[["association"]] = S4Vectors::metadata(data_obj)[["association"]][!duplicated(names( S4Vectors::metadata(data_obj)[["association"]]), fromLast=TRUE)]
   return(data_obj)
 }
-
 
 
 

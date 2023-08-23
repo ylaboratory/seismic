@@ -1,12 +1,12 @@
 ---
-title: "intro-vignette: scEnrich"
+title: "intro-vignette: seismicGWAS"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{intro-vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-This vignette introduces how to use the `scEnrich` (the name needs updating) package to discover associated cell types with disease from a single-cell RNA-seq data set. `scEnrich` will interact with the `SingleCellExperiment` object. Here is the vignette of the recommended workflow. The required data are:
+This vignette introduces how to use the `seismicGWAS` (the name needs updating) package to discover associated cell types with disease from a single-cell RNA-seq data set. `seismicGWAS` will interact with the `SingleCellExperiment` object. Here is the vignette of the recommended workflow. The required data are:
 - A matrix or `SingleCellExperiment` object as the expression data set.
 - Cell meta data for the cell type/region annotation.
 - A processed disease MAGMA z-score file. We also provide some scripts for the processing step.
@@ -15,7 +15,7 @@ All results will be stored as meta data in the object.
 ## Load package and data
 All the data was nested in a `SingleCellExperiment` object. The example data is from [The Tabula Muris Consortium](https://www.nature.com/articles/s41586-018-0590-4). The processed form of the data set can be found by the link of the website. 
 ```{r, message=FALSE, warning=FALSE}
-library(scEnrich)
+library(seismicGWAS)
 library(magrittr)
 library(SingleCellExperiment)
 library(tidyverse)
@@ -62,8 +62,7 @@ facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_e
 Finally the cell type specificity score can be used to determine
 ```{r}
 #load MAGMA z-score file
-#t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/T2D_1.genes.out")
-t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Xue_2018/T2D.35.10.genes.out")
+t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/T2D_1.genes.out")
 mdd_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/MDD.genes.out")
 #perform cell type enrichment analysis 
 facs.sce = ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
@@ -75,9 +74,8 @@ Final we can visualize the results. The plot is a `ggplot` object and could be f
 If you would like to add some grouping to the plot, you may use `add_cell_anno()` function to add the cell type annotation to the enrichment results and visualize with the `group_by` argument. 
 ```{r,fig.width=8, fig.height=10, fig.align = 'center'}
 #plot
-f1 = plot_asso(facs.sce, trait="T2D",plot_top_option = "rank<=15") + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f1 = plot_asso(facs.sce, trait="T2D_1",plot_top_option = "rank<=15") + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
 f2 = plot_asso(facs.sce, trait = "MDD", plot_top_option = "rank<=15") + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5))
-
 f1/f2
 ```
 
@@ -87,7 +85,7 @@ f1/f2
 celltype_tissue = colData(facs.sce) %>% as_tibble() %>%  distinct(cluster_name, tissue) #annotation
 facs.sce = add_ct_anno(facs.sce,  celltype_tissue, match_col="cluster_name")
 #plot for the two
-f3 = plot_asso(facs.sce, trait="T2D", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f3 = plot_asso(facs.sce, trait="T2D_1", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
 f4 = plot_asso(facs.sce, trait="MDD", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
 f3/f4
 ```
@@ -118,7 +116,7 @@ facs.sce = ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10
 facs.sce = ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 
 #final plot
-f5 = plot_asso(facs.sce, trait="T2D", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f5 = plot_asso(facs.sce, trait="T2D_1",group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
 f6 = plot_asso(facs.sce, trait="MDD", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
 f5/f6
 ```

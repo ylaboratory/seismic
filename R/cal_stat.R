@@ -63,7 +63,7 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
   
   ##filter cell groups
   if(!filter_rare_ct){
-    filter_thres = 1 #only drop the singleton
+    filter_thres = 2 #only drop the singleton
   }
   ct_to_keep_idx = which(cell_num>= filter_thres)
   cell_num = cell_num[ct_to_keep_idx]

@@ -1,4 +1,4 @@
-Package: scEnrich
+Package:  seismicGWAS
 Title: Discover associated cell types with a disease using single-cell RNA-seq and GWAS summary statistics.
 Version: 0.0.0.9000
 Authors@R: 

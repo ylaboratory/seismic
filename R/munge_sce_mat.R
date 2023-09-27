@@ -21,6 +21,9 @@ munge_sce_mat = function(data_obj,  mapping_df, assay_name = "all",multi_mapping
   if( is.null(rownames(data_obj)) | !any( rownames(data_obj) %in% (mapping_df %>% dplyr::pull(1))) ){
     stop("The feature names do not match the first column of the mapping_df")
   }
+  if(any(duplicated(rownames(data_obj)))){
+    stop("The feature names isn't unique. Make it unique or change the feature name into unique ones and then use the function to map non-unique features to unique features.")
+  }
   if (assay_name=="all"){
     assay_name =  SummarizedExperiment::assayNames(data_obj)
   }

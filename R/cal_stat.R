@@ -36,6 +36,10 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
   #calculate cell num
   if (is.null(meta_data)){
     ident_group = SummarizedExperiment::colData(data_obj)[[group]]
+    if(any(is.na(ident_group))){
+      ident_group[which(is.na(ident_group))] = "NA"
+      message("The group metadata seem to include NA ones, which have been replaced with strings instead.")
+    }
   }else{
     ident_group = meta_data %>% dplyr::pull(group)
   }

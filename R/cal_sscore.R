@@ -38,7 +38,7 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   ratio_mat = S4Vectors::metadata(data_obj)[["group_info"]][["ratio_mat"]]
   
   ##out_group_num = sum(cell_num) - cell_num
-  all_ones = matrix(1, nrow = length(cell_num), ncol = length(cell_num))
+  #all_ones = matrix(1, nrow = length(cell_num), ncol = length(cell_num))
   
   #calculate out mean 
   #tot_mean = sweep_sparse(mean_mat, margin = 1, stats = cell_num, fun="*")
@@ -55,14 +55,14 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   tot_mean_sq = sweep_sparse(mean_mat^2, margin = 1, stats = cell_num, fun="*")
   out_variance = (out_group_mat %*% tot_var + out_group_mat %*% tot_mean_sq - sweep_sparse(out_mean^2, margin=1, stat = out_group_mat %*% cell_num,fun="*") ) %>%
     sweep_sparse(margin=1,stats=out_group_mat %*% cell_num -1, fun="/")
-  
   ##relative expression
   #rel_exp = (mean_mat - out_mean)/sqrt(sweep_sparse(var_mat,margin=1, stats=cell_num-1,fun="/" ) + sweep_sparse(out_variance,margin = 1,stats = out_group_num-1, fun="/"))
   rel_exp = (mean_mat - out_mean)/sqrt(sweep_sparse(var_mat,margin=1, stats=cell_num-1,fun="/" ) + sweep_sparse(out_variance,margin = 1,stats =  out_group_mat %*% cell_num-1, fun="/"))
   
   ##specificity score
   sscore = pnorm(as.matrix(rel_exp))*ratio_mat 
-  sscore = sscore/(all_ones %*% sscore)
+  #sscore = sscore/(all_ones %*% sscore)
+  sscore = sweep_sparse(x= sscore, margin = 2, stats=Matrix::colSums(sscore), fun="/")
   S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]] = sscore
   
   return(data_obj)

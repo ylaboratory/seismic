@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-This vignette introduces how to use the `seismicGWAS` (the name needs updating) package to discover associated cell types with disease from a single-cell RNA-seq data set. `seismicGWAS` will interact with the `SingleCellExperiment` object. Here is the vignette of the recommended workflow. The required data are:
+This vignette introduces how to use the `seismicGWAS` package to discover associated cell types with disease from a single-cell RNA-seq data set. `seismicGWAS` will interact with the `SingleCellExperiment` object. Here is the vignette of the recommended workflow. The required data are:
 - A matrix or `SingleCellExperiment` object as the expression data set.
 - Cell meta data for the cell type/region annotation.
 - A processed disease MAGMA z-score file. We also provide some scripts for the processing step.

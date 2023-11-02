@@ -62,11 +62,13 @@ facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_e
 Finally the cell type specificity score can be used to determine
 ```{r}
 #load MAGMA z-score file
-t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/T2D_1.genes.out")
-mdd_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/Tabula_muris_gs/zscore/MDD.genes.out")
+t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/T2D_2.genes.out")
+mdd_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/MDD.genes.out")
+ra_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/RA.genes.out")
 #perform cell type enrichment analysis 
 facs.sce = ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 facs.sce = ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
+facs.sce = ct_asso(facs.sce, ra_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 ```
 
 ## Visualization
@@ -74,7 +76,7 @@ Final we can visualize the results. The plot is a `ggplot` object and could be f
 If you would like to add some grouping to the plot, you may use `add_cell_anno()` function to add the cell type annotation to the enrichment results and visualize with the `group_by` argument. 
 ```{r,fig.width=8, fig.height=10, fig.align = 'center'}
 #plot
-f1 = plot_asso(facs.sce, trait="T2D_1",plot_top_option = "rank<=15") + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f1 = plot_asso(facs.sce, trait="T2D_2",plot_top_option = "rank<=15") + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
 f2 = plot_asso(facs.sce, trait = "MDD", plot_top_option = "rank<=15") + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5))
 f1/f2
 ```
@@ -88,6 +90,7 @@ facs.sce = add_ct_anno(facs.sce,  celltype_tissue, match_col="cluster_name")
 f3 = plot_asso(facs.sce, trait="T2D_1", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
 f4 = plot_asso(facs.sce, trait="MDD", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
 f3/f4
+#you can also plot like FDR<0.05
 ```
 
 

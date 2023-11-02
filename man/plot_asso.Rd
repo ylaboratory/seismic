@@ -14,7 +14,8 @@ plot_asso(
 )
 }
 \arguments{
-\item{data_obj}{SingleCellExperiment object that contains}
+\item{data_obj}{SingleCellExperiment object that contains some associtaion information in metadata (accessible via metadata(data_obj)[\link{"association}]). It could also be a data
+frame or tibble, containing at least a "cell_type" column and at least "Pvalue" ansd "FDR" columns.}
 
 \item{trait}{Which association result you would like to plot}
 

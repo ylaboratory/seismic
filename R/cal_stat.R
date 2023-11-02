@@ -7,10 +7,11 @@
 #' @param output_type The output type: either 'sce' or 'tibble'
 #' @param filter_rare_ct If cell groups with too few cells should be filtered out. By default this is set to TRUE because these groups may be contaminants or something else. 
 #' @param filter_thres If filter_rare_ct is TRUE, what cells we are going to filter out?
+#' @param mean_only If only mean expression value calculated?
 #' @return A SingleCellExperiment object or a tibble, depending on output_type
 #' @export
 #' 
-cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts", output_type = "sce", filter_rare_ct = TRUE, filter_thres = 20) {
+cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts", output_type = "sce", filter_rare_ct = TRUE, filter_thres = 20, mean_only=FALSE) {
   #check input type
   if (!inherits(data_obj, "SingleCellExperiment")) {
     stop("Only SingleCellExperiment class input is accepted.")
@@ -51,6 +52,28 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
   mean_mat = sum_mat %>% sweep_sparse(margin = 1, stats = cell_num , fun="/") %>%  #get mean expression matrix
     magrittr::set_colnames(feature_name) %>% 
     magrittr::set_rownames(unique(ident_group ))
+  
+  ##filter cell groups
+  if(!filter_rare_ct){
+    filter_thres = 2 #only drop the singleton
+  }
+  ct_to_keep_idx = which(cell_num>= filter_thres)
+  cell_num = cell_num[ct_to_keep_idx]
+  mean_mat = mean_mat[ct_to_keep_idx,]
+  
+  if(mean_only){ #if variance and expression ratio are not to computed
+    if (output_type=="tibble"){
+      out_stat = cell_num %>%
+        dplyr::as_tibble(rownames = "cellgroup") %>%
+        dplyr::rename(cellnum = value) %>%
+        dplyr::left_join(mean_mat %>% as.matrix %>% dplyr::as_tibble(rownames="cellgroup") %>% tidyr::pivot_longer(cols=all_of(feature_name), names_to = "genename", values_to="mean"), by=c("cellgroup"="cellgroup"), multiple = "all")
+      return(out_stat)
+    }else{
+      S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat) %>% purrr::set_names(c("cell_num","mean_mat"))
+    }
+    return(data_obj)
+  }
+  
   #calculate variance 
   #var_mat = (factor_mat %*% (data_mat - t(factor_mat) %*% mean_mat)^2) %>%    #get variance matrix
   #var_mat =  factor_mat %*% Matrix::t(data_mat^2) 
@@ -65,16 +88,8 @@ cal_stat = function(data_obj, meta_data = NULL, group, assay_name = "logcounts",
     magrittr::set_colnames(feature_name) %>% 
     magrittr::set_rownames(unique(ident_group ))
   
-  ##filter cell groups
-  if(!filter_rare_ct){
-    filter_thres = 2 #only drop the singleton
-  }
-  ct_to_keep_idx = which(cell_num>= filter_thres)
-  cell_num = cell_num[ct_to_keep_idx]
-  mean_mat = mean_mat[ct_to_keep_idx,]
   var_mat = var_mat[ct_to_keep_idx,]
   ratio_mat = ratio_mat[ct_to_keep_idx,]
-  
   ##output  
   if (output_type=="tibble"){
     out_stat = cell_num %>%

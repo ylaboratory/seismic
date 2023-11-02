@@ -58,11 +58,6 @@ plot_asso = function(data_obj, trait,show_value = "FDR", plot_top_option = NULL 
     dplyr::mutate(cell_type = factor(cell_type, levels = rev(cell_type))) %>% #add factor 
     dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~-log10(.)) )  
     
-  #add significance asterisk
-  label_less_sig = asso_df %>% dplyr::filter(FDR>= -log10(0.1) & FDR< (-log10(0.05))) %>% dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~.+0.5))
-  label_sig = asso_df %>% dplyr::filter(FDR>=-log10(0.05) & FDR< (-log10(0.01)))%>% dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~.+0.5))
-  label_most_sig = asso_df %>% dplyr::filter(FDR>=-log10(0.01)) %>% dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~.+0.5))
-  
   #plot
   if(is.null(group)){
     plot_obj = ggplot2::ggplot(asso_df, ggplot2::aes(.data[["cell_type"]], .data[[show_value]]))
@@ -72,11 +67,19 @@ plot_asso = function(data_obj, trait,show_value = "FDR", plot_top_option = NULL 
   plot_obj = plot_obj + 
     ggplot2::geom_bar(stat = "identity") + 
     ggplot2::coord_flip() + 
-    ggplot2::geom_text(data = label_less_sig, label = "*") +
-    ggplot2::geom_text(data = label_sig, label = "**") +
-    ggplot2::geom_text(data = label_most_sig, label = "***") +
     ggplot2::ylab(paste0("-log10(", show_value, ")")) +
     ggplot2::theme_minimal() 
+  
+  #add significance asterisk
+  if(significance){
+    label_less_sig = asso_df %>% dplyr::filter(FDR>= -log10(0.1) & FDR< (-log10(0.05))) %>% dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~.+0.5))
+    label_sig = asso_df %>% dplyr::filter(FDR>=-log10(0.05) & FDR< (-log10(0.01)))%>% dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~.+0.5))
+    label_most_sig = asso_df %>% dplyr::filter(FDR>=-log10(0.01)) %>% dplyr::mutate(across(all_of(c("Pvalue","FDR")), ~.+0.5))
+    plot_obj = plot_obj + 
+      ggplot2::geom_text(data = label_less_sig, label = "*") +
+      ggplot2::geom_text(data = label_sig, label = "**") +
+      ggplot2::geom_text(data = label_most_sig, label = "***") +
+  }
   
   return(plot_obj)
 }

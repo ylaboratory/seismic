@@ -23,8 +23,12 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   }
   
   #check dimension match
-  if((is.null(meta_data) & !group %in% colnames(colData(data_obj)) )| (! group %in% colnames(meta_data) )| (ncol(data_obj) != nrow(meta_data))){
+  if (is.null(meta_data)){
+    if(!group %in% colnames(colData(data_obj))){
       stop("Dimensions don't match or 'idents' variable is wrong. Check your input.")
+    }
+  }else if( (!group %in% colnames(meta_data) ) | (ncol(data_obj) != nrow(meta_data)) ){
+    stop("Dimensions don't match or 'idents' variable is wrong. Check your input.")
   }
   
   #check name match for cells 
@@ -58,11 +62,11 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
     filter_thres = 2 #only drop the singleton
   }
   ct_to_keep_idx = which(cell_num>= filter_thres)
-  cell_num = cell_num[ct_to_keep_idx]
-  mean_mat = mean_mat[ct_to_keep_idx,]
   
   if(mean_only){ #if variance and expression ratio are not to computed
     if (output_type=="tibble"){
+      cell_num = cell_num[ct_to_keep_idx]
+      mean_mat = mean_mat[ct_to_keep_idx,]
       out_stat = cell_num %>%
         dplyr::as_tibble(rownames = "cellgroup") %>%
         dplyr::rename(cellnum = value) %>%
@@ -90,6 +94,8 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   
   var_mat = var_mat[ct_to_keep_idx,]
   ratio_mat = ratio_mat[ct_to_keep_idx,]
+  cell_num = cell_num[ct_to_keep_idx]
+  mean_mat = mean_mat[ct_to_keep_idx,]
   ##output  
   if (output_type=="tibble"){
     out_stat = cell_num %>%

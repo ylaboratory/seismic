@@ -8,7 +8,6 @@
 #' @param gene_filter_setting A dplyr::filter expression string for gene filter across the "gene_info" slot in the object meta data. Not setting this indicating that all genes are going to be used.
 #' @param asso_model A linear model or spearman correlation ("linear" or "spearman") to test the association between cell type specificity score and MAGMA z-score. 
 #' @return A data frame (in metadata(data_obj)[["association"]] slot) containing association p_value, FDR. 
-#' @import magrittr
 #' @export
 #' 
 ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_model = "linear") {

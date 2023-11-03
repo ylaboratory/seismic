@@ -14,7 +14,7 @@ plot_asso = function(data_obj, trait,show_value = "FDR", plot_top_option = NULL 
   if( !show_value %in% c("FDR","Pvalue")){
     stop("Something's wrong with the plot_top_option. Not all columns exist. ")
   }
-  if(inherits(data_obj, "SomeS4Class")){
+  if(inherits(data_obj, "SingleCellExperiment")){
     if(is.null(S4Vectors::metadata(data_obj)[["association"]][[trait]])){
       stop("The trait-cell type association does not exist")
     }
@@ -78,7 +78,7 @@ plot_asso = function(data_obj, trait,show_value = "FDR", plot_top_option = NULL 
     plot_obj = plot_obj + 
       ggplot2::geom_text(data = label_less_sig, label = "*") +
       ggplot2::geom_text(data = label_sig, label = "**") +
-      ggplot2::geom_text(data = label_most_sig, label = "***") +
+      ggplot2::geom_text(data = label_most_sig, label = "***") 
   }
   
   return(plot_obj)

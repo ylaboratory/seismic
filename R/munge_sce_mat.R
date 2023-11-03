@@ -9,7 +9,6 @@
 #' @param mapping_df A data frame to specify the mapping. The first column should contain all the feature names while the second column indicates the new feature names to be mapped to.
 #' @param multi_mapping How to translate feature name when multiple mapping exists?? By "mean" value or "sum" value? (sum for default)
 #' @return A SingleCellExperiment object 
-#' @importFrom S4Vectors DataFrame
 #' @export
 #' 
 munge_sce_mat = function(data_obj,  mapping_df, assay_name = "all",multi_mapping = "sum") {

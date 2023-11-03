@@ -6,20 +6,21 @@
 \usage{
 cal_stat(
   data_obj,
-  meta_data = NULL,
   group,
+  meta_data = NULL,
   assay_name = "logcounts",
   output_type = "sce",
   filter_rare_ct = TRUE,
-  filter_thres = 20
+  filter_thres = 20,
+  mean_only = FALSE
 )
 }
 \arguments{
 \item{data_obj}{SingleCellExperiment object}
 
-\item{meta_data}{Metadata dataframe}
-
 \item{group}{The column name in metadata for grouping}
+
+\item{meta_data}{Metadata dataframe}
 
 \item{assay_name}{The name of the assay to extract}
 
@@ -28,6 +29,8 @@ cal_stat(
 \item{filter_rare_ct}{If cell groups with too few cells should be filtered out. By default this is set to TRUE because these groups may be contaminants or something else.}
 
 \item{filter_thres}{If filter_rare_ct is TRUE, what cells we are going to filter out?}
+
+\item{mean_only}{If only mean expression value calculated?}
 }
 \value{
 A SingleCellExperiment object or a tibble, depending on output_type

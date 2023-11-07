@@ -51,7 +51,7 @@ facs.sce = cal_sscore(data_obj = facs.sce)
 Since this is a mouse data set, mapping genes between species is essential. This can be done by `sscore_mmu_hsa` function. For this step, specificity score will be averaged across all mouse genes with the human gene Entrez ID. Also, if you would like to map the the data matrix (counts or normalized format) before calculating specificity score, you may use the `munge_sce_mat` function (to be done) to achieve this. We provide the set of mouse gene id to human gene id mapping from biomart. This parsed data table can be easily loaded. Even if you use human gene symbols as feature names, mapping to human entrez id is also supposed to be done here. (We only keep genes with Entrez ID). 
 ```{r message=FALSE,warnings=FALSE}
 #load processed biomaRt mmu and hsa gene mapping
-#data("mmu_hsa_mapping")  
+data("mmu_hsa_mapping")  
 #map mmu genes to hsa genes
 facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 #calculate global statics
@@ -126,3 +126,20 @@ f5/f6
 ```
 Here the results are quite similar to the former ones (without specifying background cells).
 
+To print out tables for MAGMA-specificity or FUMA analysis and then use MAGMA for the analysis, firstly the CPM/logCPM assays have to be obtained and then the output tables are created. Note that for the original [MAGMA-specificity](https://www.nature.com/articles/s41588-020-0610-9) and [FUMA](https://www.nature.com/articles/s41467-017-01261-5) papers, CPM and logCPM (or logcounts) assays are used respecitvely.
+```{r}
+#FUMA uses logcpm assay and MAGMA uses cpm assay
+assay(facs.sce,"cpm") = scuttle::calculateCPM(facs.sce)
+#calculate mean expression
+facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name",assay_name = "cpm", mean_only = TRUE)
+#map mmu genes to hsa genes
+facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
+#write.out
+print_exp_tbl(facs.sce, "MAGMA", main_table_path = "/grain/ql29/ad-cell-enrich/data/test.magma.txt",aux_table_path = "/grain/ql29/ad-cell-enrich/data/aux.magma.txt")
+
+#if FUMA
+facs.sce=  scuttle::logNormCounts(facs.sce, assay.type = "cpm",name="logcpm")
+facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name",assay_name = "logcpm")
+facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
+print_exp_tbl(facs.sce, "FUMA", main_table_path = "/grain/ql29/ad-cell-enrich/data/test.fuma.txt",aux_table_path = "/grain/ql29/ad-cell-enrich/data/aux.fuma.txt")
+```

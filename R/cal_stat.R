@@ -64,9 +64,9 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   ct_to_keep_idx = which(cell_num>= filter_thres)
   
   if(mean_only){ #if variance and expression ratio are not to computed
+    cell_num = cell_num[ct_to_keep_idx]
+    mean_mat = mean_mat[ct_to_keep_idx,]
     if (output_type=="tibble"){
-      cell_num = cell_num[ct_to_keep_idx]
-      mean_mat = mean_mat[ct_to_keep_idx,]
       out_stat = cell_num %>%
         dplyr::as_tibble(rownames = "cellgroup") %>%
         dplyr::rename(cellnum = value) %>%

@@ -4,14 +4,22 @@
 \alias{gene_inf_measure}
 \title{Detect the influential genes in the a trait-cell type association pair using DFBETAS}
 \usage{
-gene_inf_measure(data_obj, cell_type, trait_name, pos_genes = T)
+gene_inf_measure(
+  data_obj,
+  gene_zscore_df,
+  trait_name,
+  cell_type,
+  pos_genes = T
+)
 }
 \arguments{
 \item{data_obj}{A SingleCellExperiment object}
 
-\item{cell_type}{The cell type.}
+\item{gene_zscore_df}{A gene zscore data frame. The first column is hsa_entrez and the other columns contain the MAGMA gene Z-score of traits.}
 
 \item{trait_name}{The name of the trait.}
+
+\item{cell_type}{The cell type.}
 
 \item{pos_genes}{If only genes with positive DFBETAS value will be pick as the top influential ones?}
 }

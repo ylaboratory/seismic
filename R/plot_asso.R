@@ -16,16 +16,10 @@ plot_asso = function(data_obj, trait, asso_model, show_value = "FDR", plot_top_o
     stop("Something's wrong with the plot_top_option. Not all columns exist. ")
   }
   if(inherits(data_obj, "SingleCellExperiment")){
-   
-    #if(is.null(get_meta_slot(data_obj,"association")[[trait]])){
-    #  stop("The trait-cell type association does not exist")
-    #}
-    
     if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_meta_slot(data_obj,"cell_type_anno"))))){
       stop("Something's wrong with the plot_top_option. Not all columns exist. ")
     }
-    #asso_df = S4Vectors::metadata(data_obj)[["association"]][[trait]] %>% 
-    asso_df = get_ct_asso(data_obj, trait, asso_model) %>%
+    asso_df = get_ct_asso(data_obj, trait, asso_model) %>% #trait name and asso_model check here 
       dplyr::arrange(Pvalue) %>%
       dplyr::mutate(rank = 1:n())
     #check group

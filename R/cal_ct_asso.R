@@ -82,11 +82,12 @@ cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_
     purrr::map(~dplyr::mutate(.x,FDR = p.adjust(Pvalue,method = "fdr"))) %>%
     purrr::map(~as.data.frame(.x))
   
+  
   #output
   #S4Vectors::metadata(data_obj)[["association"]] = append(S4Vectors::metadata(data_obj)[["association"]],asso_res)
   #only keep non-duplicated traits
   #S4Vectors::metadata(data_obj)[["association"]] = S4Vectors::metadata(data_obj)[["association"]][!duplicated(names( S4Vectors::metadata(data_obj)[["association"]]), fromLast=TRUE)]
-  data_obj = add_ct_asso(data_obj, asso_res, names(asso_res), asso_model)
+  data_obj = add_ct_asso(data_obj, asso_res, names(asso_res), asso_model, model_gene)
   
   return(data_obj)
 }

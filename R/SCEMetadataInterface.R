@@ -49,14 +49,26 @@ set_meta_slot = function(data_obj, slot, value){
 #' The data frame has to have two columns: cell_type and Pvalue 
 #' @param trait_name name of the trait(s)
 #' @param asso_model The model used to calculate the cell type level association with the trait.
+#' @param model_gene Model genes used in the association model. The model gene will be stored in the "association" metadata slot.
 #' @return the data object with set values
 #' @keywords internal
 #' @noRd
-add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model="linear"){ 
+add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model, model_gene){ 
   if (!asso_model %in% c("linear","spearman")){
     stop("Please indicate the right model.")
   }
   full_asso_list =  get_meta_slot(data_obj,"association")
+  #check if model genes contradict
+  if(is.null(full_asso_list[["model_gene"]][[asso_model]])){
+    full_asso_list[["model_gene"]][[asso_model]] = model_gene
+    full_asso_list[["model_gene"]] = full_asso_list[["model_gene"]][c("linear","spearman")[names(full_asso_list[["model_gene"]]) %in% c("linear","spearman")]] #rearrange 
+  }else{
+    if (any(!full_asso_list[["model_gene"]][[asso_model]] %in% model_gene)|any(! model_gene %in% full_asso_list[["model_gene"]][[asso_model]])) {
+      warning("The new model have different model genes with the previously saved association models. The old association models and results have been removed")
+      full_asso_list[["model_gene"]][[asso_model]] = model_gene
+    }
+  }
+  
   all_asso_df = full_asso_list[[asso_model]] %>% 
     keep(~!is.null(names(.)))
   all_trait_name = c(names(all_asso_df), trait_name)
@@ -68,6 +80,7 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model="linear"){
   all_asso_df = all_asso_df %>%
     purrr::set_names(all_trait_name) %>% #set names
     .[!duplicated(names(.), fromLast=TRUE)] #remove duplicated traits
+  
   full_asso_list[[asso_model]] = all_asso_df 
   return(set_meta_slot(data_obj,"association",full_asso_list))
 }
@@ -105,7 +118,6 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
     }
   }else{
     if (any(!trait_name %in% names(get_meta_slot(data_obj,"association")[[asso_model]]))){
-      #print(trait_name[!trait_name %in% names(get_meta_slot(data_obj,"association"))])
       stop("Some traits are not present in the cell type association tables")
     }
     asso_df_list = get_meta_slot(data_obj,"association")[[asso_model]][trait_name]

@@ -62,6 +62,8 @@ transform_sparse = function(x, fun = "log2") {
 #'output:sparse matrix.
 #' @param zscore A zscore vector
 #' @param metric Value to test association
+#' @keywords internal
+#' @noRd
 lm_pvalue = function(zscore, metric){
   f1 = which(is.finite(metric))
   asso_lm = speedglm::speedlm(zscore[f1]~metric[f1]) #the function will automatically drop the NA values but cannot deal with metric 
@@ -76,20 +78,13 @@ lm_pvalue = function(zscore, metric){
 #'output:sparse matrix.
 #' @param zscore A zscore vector
 #' @param metric Value to test association
+#' @keywords internal
+#' @noRd
 spearman_pvalue = function(zscore, metric){
   cor.model = cor.test(z_score, metric, alternative = "greater", method = "spearman")
   return(cor.model$p.value)
 }
 
-
-#'This function is used for model diagnostics
-#'input: two vectors
-#'output: leave-one-out t-statistics difference
-#' @param zscore A zscore vector
-#' @param metric Value to test association
-lm_loo_t = function(zscore, metric){
-  
-}
 
 
 

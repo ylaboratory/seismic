@@ -20,7 +20,7 @@ cal_stat(
 
 \item{group}{The column name in metadata for grouping}
 
-\item{meta_data}{Metadata dataframe}
+\item{meta_data}{Metadata dataframe. Rownames of the data frame should be the same as the colnames of the expression matrix (keep cell ID order correct).}
 
 \item{assay_name}{The name of the assay to extract}
 

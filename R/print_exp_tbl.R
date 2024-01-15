@@ -22,11 +22,13 @@ print_exp_tbl = function(data_obj, table_type,main_table_path,  aux_table_path =
     stop("table_type could be only either 'MAGMA' or 'FUMA'")
   }
   
-  if (is.null(S4Vectors::metadata(data_obj)[["group_info"]]) | is.null(S4Vectors::metadata(data_obj)[["group_info"]][["mean_mat"]])){
+  #if (is.null(S4Vectors::metadata(data_obj)[["group_info"]]) | is.null(S4Vectors::metadata(data_obj)[["group_info"]][["mean_mat"]])){
+  if (meta_slot_is_null(data_obj,"group_info") | is.null(get_meta_slot(data_obj,"group_info")[["mean_mat"]])){
     stop("The 'gene_info' slot of the metadata is empty. Run cal_stat() first.")
   }
   
-  mean_mat = metadata(data_obj)[["group_info"]][["mean_mat"]]
+  #mean_mat = metadata(data_obj)[["group_info"]][["mean_mat"]]
+  mean_mat = get_meta_slot(data_obj,"group_info")[["mean_mat"]]
   
   #main table directory
   if (!dir.exists(base::dirname(main_table_path))) {

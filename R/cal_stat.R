@@ -1,7 +1,7 @@
 #' Compute group level statistics for SingleCellExperiment
 #'
 #' @param data_obj SingleCellExperiment object
-#' @param meta_data Metadata dataframe
+#' @param meta_data Metadata dataframe. Rownames of the data frame should be the same as the colnames of the expression matrix (keep cell ID order correct).
 #' @param group The column name in metadata for grouping
 #' @param assay_name The name of the assay to extract
 #' @param output_type The output type: either 'sce' or 'tibble'
@@ -24,7 +24,7 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   
   #check dimension match
   if (is.null(meta_data)){
-    if(!group %in% colnames(colData(data_obj))){
+    if(!group %in% colnames(SummarizedExperiment::colData(data_obj))){
       stop("Dimensions don't match or 'idents' variable is wrong. Check your input.")
     }
   }else if( (!group %in% colnames(meta_data) ) | (ncol(data_obj) != nrow(meta_data)) ){
@@ -73,7 +73,10 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
         dplyr::left_join(mean_mat %>% as.matrix %>% dplyr::as_tibble(rownames="cellgroup") %>% tidyr::pivot_longer(cols=all_of(feature_name), names_to = "genename", values_to="mean"), by=c("cellgroup"="cellgroup"), multiple = "all")
       return(out_stat)
     }else{
-      S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat) %>% purrr::set_names(c("cell_num","mean_mat"))
+      #S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat) %>% purrr::set_names(c("cell_num","mean_mat"))
+      data_obj = list(cell_num, mean_mat) %>% 
+        purrr::set_names(c("cell_num","mean_mat")) %>%
+        set_meta_slot(data_obj,"group_info",value=.)
     }
     return(data_obj)
   }
@@ -106,7 +109,10 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
       dplyr::left_join(ratio_mat %>% as.matrix %>% dplyr::as_tibble(rownames="cellgroup") %>% tidyr::pivot_longer(cols=all_of(feature_name), names_to = "genename", values_to="ratio"), by=c("cellgroup"="cellgroup","genename"="genename")) 
     return(out_stat)
   }else{
-    S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat, var_mat, ratio_mat) %>% purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat"))
+    #S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat, var_mat, ratio_mat) %>% purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat"))
+    data_obj = list(cell_num, mean_mat, var_mat, ratio_mat) %>%
+      purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat")) %>%
+      set_meta_slot(data_obj,"group_info",value=.) 
   }
   return(data_obj)
 }

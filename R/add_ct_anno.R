@@ -30,16 +30,21 @@ add_ct_anno = function(data_obj, ct_anno, match_col=NULL) {
   }
   #check if current index conflicts with the previous index
   
-  if (!any(ct_name %in% names(S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]]) )){
+  #if (!any(ct_name %in% names(S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]]) )){
+  if (!any(ct_name %in% names(get_meta_slot(data_obj,"group_info")[["cell_num"]]) )){
     stop("Something seems to be wrong, your cell types do not match the existing data. Or group-level information is not added to the current data set.")
   }
   
   ## add 
-  if (is.null(S4Vectors::metadata(data_obj)[["cell_type_anno"]])){
-    if (!is.null(S4Vectors::metadata(data_obj)[["group_info"]])){
-      S4Vectors::metadata(data_obj)[["cell_type_anno"]] = data.frame(cell_type = names(S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]]))
+  #if (is.null(S4Vectors::metadata(data_obj)[["cell_type_anno"]])){
+  if (meta_slot_is_null(data_obj,"cell_type_anno")){
+    #if (!is.null(S4Vectors::metadata(data_obj)[["group_info"]])){
+    if (!meta_slot_is_null(data_obj,"group_info")){
+      #S4Vectors::metadata(data_obj)[["cell_type_anno"]] = data.frame(cell_type = names(S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]]))
+      data_obj = set_meta_slot(data_obj,"cell_type_anno", data.frame(cell_type = names(get_meta_slot(data_obj,"group_info")[["cell_num"]])))
     }else{
-      S4Vectors::metadata(data_obj)[["cell_type_anno"]] = data.frame(cell_type = ct_name)
+      #S4Vectors::metadata(data_obj)[["cell_type_anno"]] = data.frame(cell_type = ct_name)
+      data_obj = set_meta_slot(data_obj,"cell_type_anno",data.frame(cell_type = ct_name))
     }
   }
   if (is.vector(ct_anno)){
@@ -50,15 +55,25 @@ add_ct_anno = function(data_obj, ct_anno, match_col=NULL) {
   #remove duplicate columns in gene_info: update them
   duplicated_col = colnames(S4Vectors::metadata(data_obj)[["cell_type_anno"]])[-1] %>% intersect(colnames(ct_anno))  
   if (length(duplicated_col) >=1 ){
-    S4Vectors::metadata(data_obj)[["cell_type_anno"]] = S4Vectors::metadata(data_obj)[["cell_type_anno"]] %>% dplyr::select(-any_of(duplicated_col))
+    #S4Vectors::metadata(data_obj)[["cell_type_anno"]] = S4Vectors::metadata(data_obj)[["cell_type_anno"]] %>% dplyr::select(-any_of(duplicated_col))
+    data_obj = get_meta_slot(data_obj,"cell_type_anno") %>%
+      dplyr::select(-any_of(duplicated_col)) %>%
+      set_meta_slot(data_obj, "cell_type_anno",value=.)
   }
   
   ##join
   if(is.null(match_col)){
-    S4Vectors::metadata(data_obj)[["cell_type_anno"]] = S4Vectors::metadata(data_obj)[["cell_type_anno"]] %>% dplyr::full_join(ct_anno, by="cell_type") %>% as.data.frame()
+    #S4Vectors::metadata(data_obj)[["cell_type_anno"]] = S4Vectors::metadata(data_obj)[["cell_type_anno"]] %>% dplyr::full_join(ct_anno, by="cell_type") %>% as.data.frame()
+    data_obj = get_meta_slot(data_obj, "cell_type_anno") %>%
+      dplyr::full_join(ct_anno, by="cell_type") %>% 
+      as.data.frame() %>%
+      set_meta_slot(data_obj, "cell_type_anno", value=.)
   }else{
-    S4Vectors::metadata(data_obj)[["cell_type_anno"]] = S4Vectors::metadata(data_obj)[["cell_type_anno"]] %>% dplyr::full_join(ct_anno, by=c("cell_type"=match_col)) %>% as.data.frame()
-    
+    #S4Vectors::metadata(data_obj)[["cell_type_anno"]] = S4Vectors::metadata(data_obj)[["cell_type_anno"]] %>% dplyr::full_join(ct_anno, by=c("cell_type"=match_col)) %>% as.data.frame()
+    data_obj = get_meta_slot(data_obj,"cell_type_anno") %>%
+      dplyr::full_join(ct_anno, by=c("cell_type"=match_col)) %>%
+      as.data.frame() %>%
+      set_meta_slot(data_obj, "cell_type_anno", value=.)
   }
   
   return(data_obj)

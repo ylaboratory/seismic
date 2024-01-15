@@ -7,6 +7,7 @@
 plot_asso(
   data_obj,
   trait,
+  asso_model,
   show_value = "FDR",
   plot_top_option = NULL,
   group = NULL,
@@ -18,6 +19,8 @@ plot_asso(
 frame or tibble, containing at least a "cell_type" column and at least "Pvalue" ansd "FDR" columns.}
 
 \item{trait}{Which association result you would like to plot}
+
+\item{asso_model}{The model previously specified too calculate the cell type level association with the trait.}
 
 \item{show_value}{Show FDR or Pvalue to plot as y-axis?}
 

@@ -10,16 +10,19 @@
 #' @return A data frame (in metadata(data_obj)[["association"]] slot) containing association p_value, FDR. 
 #' @export
 #' 
-ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_model = "linear") {
+cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_model = "linear") {
   #check data
-  if (is.null(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]) ){
+  #if (is.null(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]) ){
+  if (is.null(get_meta_slot(data_obj,"group_info")[["sscore"]]) ){
     stop("You should first calculate specificity score ")
   }
   #gene filter setting
   if ((!is.null(gene_filter_setting))){
-    if (is.null(S4Vectors::metadata(data_obj)[["gene_info"]])){
+    #if (is.null(S4Vectors::metadata(data_obj)[["gene_info"]])){
+    if (meta_slot_is_null(data_obj,"gene_info")){
       stop("Please add gene annotation using 'add_gene_anno()' or 'add_glob_stat()'.")
-    }else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(S4Vectors::metadata(data_obj)[["gene_info"]]))){
+    #}else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(S4Vectors::metadata(data_obj)[["gene_info"]]))){
+    }else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(get_meta_slot(data_obj,"gene_info")))){
       stop("Something's wrong with the gene_filter_setting. Not all columns exist. ")
     }
   }
@@ -28,25 +31,30 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
     stop("Please indicate the right model.")
   }
   #check if gene_zscore data look good
-  if(length( intersect( colnames(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]), gene_zscore_df[[1]]) )==0){
+  #if(length( intersect( colnames(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]), gene_zscore_df[[1]]) )==0){
+  if(length( intersect( colnames(get_meta_slot(data_obj,"group_info")[["sscore"]]), gene_zscore_df[[1]]) )==0){
     stop("The gene_zscore_df have no genes mapping to the current specificity score gene entry, you may first map genes to the same gene id type.")
   }
   
   #check gene mapping
-  if(!any(as.character(gene_zscore_df[[1]]) %in% as.character(colnames(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]])))){
+  if(!any(as.character(gene_zscore_df[[1]]) %in% as.character(colnames(get_meta_slot(data_obj,"group_info")[["sscore"]])))){
     stop("Specificity score do not have the same gene id type as the z_score_df, you may first do mapping between them using trans_mmu_to_hsa_stat()")
   }
   
   #expand to a tibble
-  sscore_tb = S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]] %>%
+  sscore_tb = get_meta_slot(data_obj,"group_info")[["sscore"]] %>%
     as.matrix() %>%
     dplyr::as_tibble(rownames = "cell_type") %>%
     tidyr::pivot_longer(!cell_type,names_to = "gene_name",values_to = "sscore")
   
-  #filter genes 
-  model_gene = S4Vectors::metadata(data_obj)[["gene_info"]] %>%
-    dplyr::filter(!!rlang::parse_expr(gene_filter_setting)) %>%
-    dplyr::pull(gene_name)
+  #filter genes
+  if(!is.null(gene_filter_setting) & !meta_slot_is_null(data_obj,"gene_info")){
+    model_gene = get_meta_slot(data_obj,"gene_info") %>%
+      dplyr::filter(!!rlang::parse_expr(gene_filter_setting)) %>%
+      dplyr::pull(gene_name)
+  }else{
+    model_gene = colnames(get_meta_slot(data_obj,"group_info")[["sscore"]])
+  }
   
   sscore_tb = sscore_tb %>% 
     dplyr::filter(gene_name %in% model_gene) %>%
@@ -65,8 +73,8 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
   
   #break to list
   trait_name = gsub(colnames(gene_zscore_df)[-1], pattern="_zstat",replacement = "")
-  asso_res = purrr::map(2:ncol(asso_res), ~asso_res[,c(1,.x)]) %>%
-    purrr::set_names(trait_name) 
+  asso_res = purrr::map(2:ncol(asso_res), ~asso_res[,c(1,.x)])
+  asso_res = asso_res %>% purrr::set_names(trait_name) 
   
   #add FDR
   asso_res = asso_res %>%
@@ -75,9 +83,11 @@ ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_mode
     purrr::map(~as.data.frame(.x))
   
   #output
-  S4Vectors::metadata(data_obj)[["association"]] = append(S4Vectors::metadata(data_obj)[["association"]],asso_res)
+  #S4Vectors::metadata(data_obj)[["association"]] = append(S4Vectors::metadata(data_obj)[["association"]],asso_res)
   #only keep non-duplicated traits
-  S4Vectors::metadata(data_obj)[["association"]] = S4Vectors::metadata(data_obj)[["association"]][!duplicated(names( S4Vectors::metadata(data_obj)[["association"]]), fromLast=TRUE)]
+  #S4Vectors::metadata(data_obj)[["association"]] = S4Vectors::metadata(data_obj)[["association"]][!duplicated(names( S4Vectors::metadata(data_obj)[["association"]]), fromLast=TRUE)]
+  data_obj = add_ct_asso(data_obj, asso_res, names(asso_res), asso_model)
+  
   return(data_obj)
 }
 

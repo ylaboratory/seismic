@@ -67,9 +67,9 @@ t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/
 mdd_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/MDD.genes.out")
 ra_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/RA.genes.out")
 #perform cell type enrichment analysis 
-facs.sce = ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
-facs.sce = ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
-facs.sce = ct_asso(facs.sce, ra_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
+facs.sce = cal_ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
+facs.sce = cal_ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
+facs.sce = cal_ct_asso(facs.sce, ra_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 ```
 
 ## Visualization
@@ -77,8 +77,8 @@ Final we can visualize the results. The plot is a `ggplot` object and could be f
 If you would like to add some grouping to the plot, you may use `add_cell_anno()` function to add the cell type annotation to the enrichment results and visualize with the `group_by` argument. 
 ```{r,fig.width=8, fig.height=10, fig.align = 'center'}
 #plot
-f1 = plot_asso(facs.sce, trait="T2D_2",plot_top_option = "rank<=15") + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
-f2 = plot_asso(facs.sce, trait = "MDD", plot_top_option = "rank<=15") + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5))
+f1 = plot_asso(facs.sce, asso_model = "linear",trait="T2D_2",plot_top_option = "rank<=15") + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f2 = plot_asso(facs.sce, asso_model = "linear",trait = "MDD", plot_top_option = "rank<=15") + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5))
 f1/f2
 ```
 
@@ -88,8 +88,8 @@ f1/f2
 celltype_tissue = colData(facs.sce) %>% as_tibble() %>%  distinct(cluster_name, tissue) #annotation
 facs.sce = add_ct_anno(facs.sce,  celltype_tissue, match_col="cluster_name")
 #plot for the two
-f3 = plot_asso(facs.sce, trait="T2D_1", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
-f4 = plot_asso(facs.sce, trait="MDD", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
+f3 = plot_asso(facs.sce, asso_model = "linear",trait="T2D_2", asso_model = "linear" ,group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f4 = plot_asso(facs.sce, asso_model = "linear",trait="MDD", asso_model = "linear",group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
 f3/f4
 #you can also plot like FDR<0.05
 ```
@@ -116,15 +116,20 @@ facs.sce = cal_sscore(data_obj = facs.sce, out_group_mat =  co_out_mat)
 #facs.sce = cal_sscore(data_obj = facs.sce,  out_group_mat =  co_out_mat)
 #facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 ##
-facs.sce = ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
-facs.sce = ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
+facs.sce = cal_ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
+facs.sce = cal_ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 
 #final plot
-f5 = plot_asso(facs.sce, trait="T2D_1",group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
-f6 = plot_asso(facs.sce, trait="MDD", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
+f5 = plot_asso(facs.sce, asso_model = "linear", trait="T2D_2",group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f6 = plot_asso(facs.sce, asso_model = "linear",trait="MDD", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
 f5/f6
 ```
 Here the results are quite similar to the former ones (without specifying background cells).
+
+seismicGWAS is also able to extract the most influential genesfor a significant trait-cell type association pair.
+```{r}
+
+```
 
 To print out tables for MAGMA-specificity or FUMA analysis and then use MAGMA for the analysis, firstly the CPM/logCPM assays have to be obtained and then the output tables are created. Note that for the original [MAGMA-specificity](https://www.nature.com/articles/s41588-020-0610-9) and [FUMA](https://www.nature.com/articles/s41467-017-01261-5) papers, CPM and logCPM (or logcounts) assays are used respecitvely.
 ```{r}
@@ -143,3 +148,5 @@ facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.
 facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 print_exp_tbl(facs.sce, "FUMA", main_table_path = "/grain/ql29/ad-cell-enrich/data/test.fuma.txt",aux_table_path = "/grain/ql29/ad-cell-enrich/data/aux.fuma.txt")
 ```
+
+

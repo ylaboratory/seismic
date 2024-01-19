@@ -61,13 +61,13 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model, model_gene)
   #check if model genes contradict
   if(is.null(full_asso_list[["model_gene"]][[asso_model]])){
     full_asso_list[["model_gene"]][[asso_model]] = model_gene
-    full_asso_list[["model_gene"]] = full_asso_list[["model_gene"]][c("linear","spearman")[names(full_asso_list[["model_gene"]]) %in% c("linear","spearman")]] #rearrange 
   }else{
     if (any(!full_asso_list[["model_gene"]][[asso_model]] %in% model_gene)|any(! model_gene %in% full_asso_list[["model_gene"]][[asso_model]])) {
       warning("The new model have different model genes with the previously saved association models. The old association models and results have been removed")
       full_asso_list[["model_gene"]][[asso_model]] = model_gene
     }
   }
+  full_asso_list[["model_gene"]] = full_asso_list[["model_gene"]][c("linear","spearman")[names(full_asso_list[["model_gene"]]) %in% c("linear","spearman")]] #rearrange 
   
   all_asso_df = full_asso_list[[asso_model]] %>% 
     keep(~!is.null(names(.)))
@@ -82,6 +82,7 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model, model_gene)
     .[!duplicated(names(.), fromLast=TRUE)] #remove duplicated traits
   
   full_asso_list[[asso_model]] = all_asso_df 
+  full_asso_list = full_asso_list[c("linear","spearman","model_gene")[names(full_asso_list) %in% c("linear","spearman","model_gene")]] #rearrange 
   return(set_meta_slot(data_obj,"association",full_asso_list))
 }
 
@@ -132,4 +133,14 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
   return(asso_df_list)
 }
 
+####user-friendly interface to retrieve the information
+#' Print out the summary information so far for the processing of seismicGWAS
+#' @param data_obj SingleCellExperiment object
+#' @param verbose How detailed the information is being printed?
+#' @param info_to_print A vector or a value, specifying what you are going to print.
+#' @return The returned value depends on the input. If info_to_print parameter is null, there will be no values or data returned.
+#' @export 
 
+sce_summary_info = function(data_obj){
+  
+}

@@ -60,7 +60,7 @@ facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_e
 ```
 
 ## Cell-type enrichment
-Finally the cell type specificity score can be used to determine
+Finally the cell type specificity score can be used to determine cell type-level trait association. `load_zscore()` function can be easily applied to obtain the trait-level Z-score data frame. The trait name will be automatically assigned based on the file name of the Z-score file (unless thhe `name` parameter is specified).
 ```{r}
 #load MAGMA z-score file
 t2d_zscore = load_zscore("/grain/ql29/ad-cell-enrich/data/gwas/new_tm_gs/zscore/T2D_2.genes.out")
@@ -88,8 +88,8 @@ f1/f2
 celltype_tissue = colData(facs.sce) %>% as_tibble() %>%  distinct(cluster_name, tissue) #annotation
 facs.sce = add_ct_anno(facs.sce,  celltype_tissue, match_col="cluster_name")
 #plot for the two
-f3 = plot_asso(facs.sce, asso_model = "linear",trait="T2D_2", asso_model = "linear" ,group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
-f4 = plot_asso(facs.sce, asso_model = "linear",trait="MDD", asso_model = "linear",group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
+f3 = plot_asso(facs.sce, asso_model = "linear",trait="T2D_2", group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with T2D") + theme(axis.text.x=element_text(size=5)) 
+f4 = plot_asso(facs.sce, asso_model = "linear",trait="MDD",group="tissue", plot_top_option = "rank<=15") + ggsci::scale_fill_npg() + ggtitle("Associated cell types with MDD") + theme(axis.text.x=element_text(size=5)) 
 f3/f4
 #you can also plot like FDR<0.05
 ```
@@ -126,9 +126,9 @@ f5/f6
 ```
 Here the results are quite similar to the former ones (without specifying background cells).
 
-seismicGWAS is also able to extract the most influential genesfor a significant trait-cell type association pair.
+seismicGWAS is also able to extract the most influential genes for a significant trait-cell type association pair.
 ```{r}
-
+top_inf_genes = gene_inf_measure(facs.sce, gene_zscore_df = t2d_zscore, trait_name = "T2D_2", cell_type = "Pancreas.beta cell")
 ```
 
 To print out tables for MAGMA-specificity or FUMA analysis and then use MAGMA for the analysis, firstly the CPM/logCPM assays have to be obtained and then the output tables are created. Note that for the original [MAGMA-specificity](https://www.nature.com/articles/s41588-020-0610-9) and [FUMA](https://www.nature.com/articles/s41467-017-01261-5) papers, CPM and logCPM (or logcounts) assays are used respecitvely.

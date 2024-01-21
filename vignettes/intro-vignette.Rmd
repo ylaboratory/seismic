@@ -126,12 +126,25 @@ f5/f6
 ```
 Here the results are quite similar to the former ones (without specifying background cells).
 
-seismicGWAS is also able to extract the most influential genes for a significant trait-cell type association pair.
+seismicGWAS is also able to extract the most influential genes for a significant trait-cell type association pair. For example, to extract the most inflential genes for the association between pancreatic beta cells and type II diabetes.
 ```{r}
+#top genes 
 top_inf_genes = gene_inf_measure(facs.sce, gene_zscore_df = t2d_zscore, trait_name = "T2D_2", cell_type = "Pancreas.beta cell")
+#import the library for annotation
+library(org.Hs.eg.db)
+top_inf_genes = top_inf_genes %>% 
+  mutate(hsa_symbol = mapIds(org.Hs.eg.db, keys = hsa_entrez, keytype = "ENTREZID", column = "SYMBOL"))
+head(top_inf_genes %>% arrange(-dfbetas))
+```
+For example, the top influential gene is SLC30A8, which is responsible for a zinc transportation into pancreatic beta-cells. The function of the top genes can be also analyzed using gene set enrichment. For example, [clusterProfiler package](https://guangchuangyu.github.io/software/clusterProfiler/) provides a great interface for functional gene set enrichment.
+```{r}
+#import the library
+library(clusterProfiler)
+#GO enrichment
+go_enrichment = enrichGO(gene = top_inf_genes %>% filter(influential) %>% pull(hsa_entrez), OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",readable = T)
 ```
 
-To print out tables for MAGMA-specificity or FUMA analysis and then use MAGMA for the analysis, firstly the CPM/logCPM assays have to be obtained and then the output tables are created. Note that for the original [MAGMA-specificity](https://www.nature.com/articles/s41588-020-0610-9) and [FUMA](https://www.nature.com/articles/s41467-017-01261-5) papers, CPM and logCPM (or logcounts) assays are used respecitvely.
+seismicGWAS also provides functions for easily accessing to other MAGMA-based cell-type enrichment frameworks. To print out tables for MAGMA-specificity (S-MAGMA) or FUMA analysis and then use MAGMA for the analysis, firstly the CPM/logCPM assays have to be obtained and then the output tables are created. Note that for the original [S-MAGMA](https://www.nature.com/articles/s41588-020-0610-9)(gene set analysis) and [FUMA](https://www.nature.com/articles/s41467-017-01261-5) papers, CPM and logCPM (or logcounts) assays are used respectively.
 ```{r}
 #FUMA uses logcpm assay and MAGMA uses cpm assay
 assay(facs.sce,"cpm") = scuttle::calculateCPM(facs.sce)

@@ -36,7 +36,6 @@ gene_inf_measure = function(data_obj, gene_zscore_df, trait_name, cell_type,  po
   model_gene = get_meta_slot(data_obj,"association")[["model_gene"]][["linear"]]
   sscore_df = get_meta_slot(data_obj,"group_info")[["sscore"]] %>%
     .[which(rownames(.)==cell_type),] %>%
-    as.vector() %>%
     dplyr::as_tibble(rownames = "gene_name") %>% 
     dplyr::mutate(gene_name = as.character(gene_name)) %>% 
     dplyr::filter(gene_name %in% as.character(model_gene)) %>% 

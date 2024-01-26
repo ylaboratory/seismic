@@ -10,7 +10,7 @@ This vignette introduces how to use the `seismicGWAS` package to discover associ
 - A matrix or `SingleCellExperiment` object as the expression data set.
 - Cell meta data for the cell type/region annotation.
 - A processed disease MAGMA z-score file. We also provide some scripts for the processing step.
-All results will be stored as meta data in the object.
+All results will be stored as meta data in the object.k
 
 ## Load package and data
 All the data was nested in a `SingleCellExperiment` object. The example data is from [The Tabula Muris Consortium](https://www.nature.com/articles/s41586-018-0590-4). The processed form of the data set can be found by the link of the website. 
@@ -142,6 +142,7 @@ For example, the top influential gene is SLC30A8, which is responsible for a zin
 library(clusterProfiler)
 #GO enrichment
 go_enrichment = enrichGO(gene = top_inf_genes %>% filter(influential) %>% pull(hsa_entrez), OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",readable = T)
+head(as.data.frame(go_enrichment),10)
 ```
 
 seismicGWAS also provides functions for easily accessing to other MAGMA-based cell-type enrichment frameworks. To print out tables for MAGMA-specificity (S-MAGMA) or FUMA analysis and then use MAGMA for the analysis, firstly the CPM/logCPM assays have to be obtained and then the output tables are created. Note that for the original [S-MAGMA](https://www.nature.com/articles/s41588-020-0610-9)(gene set analysis) and [FUMA](https://www.nature.com/articles/s41467-017-01261-5) papers, CPM and logCPM (or logcounts) assays are used respectively.

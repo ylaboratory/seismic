@@ -2,12 +2,12 @@
 
 #' Check if a metadata slot is empty or not.
 #' @param data_obj SingleCellExperiment object
-#' @param slot slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","gene_info","association"
+#' @param slot slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","gene_info","association" or ""
 #' @return TRUE or FALSE
 #' @keywords internal
 #' @noRd
 meta_slot_is_null = function(data_obj, slot){
-  if (!slot %in% c("group_info","gene_info","association","cell_type_anno")){
+  if (!slot %in% c("group_info","gene_info","association","cell_type_anno","obj_log")){
     stop("slot is wrong")
   }
   return(is.null(S4Vectors::metadata(data_obj)[[slot]]))
@@ -21,7 +21,7 @@ meta_slot_is_null = function(data_obj, slot){
 #' @keywords internal
 #' @noRd
 get_meta_slot = function(data_obj, slot){
-  if (!slot %in% c("group_info","gene_info","association","cell_type_anno") ){
+  if (!slot %in% c("group_info","gene_info","association","cell_type_anno","obj_log") ){
     stop("slot is wrong")
   }
   return(S4Vectors::metadata(data_obj)[[slot]])
@@ -35,7 +35,7 @@ get_meta_slot = function(data_obj, slot){
 #' @keywords internal
 #' @noRd
 set_meta_slot = function(data_obj, slot, value){
-  if (!slot %in% c("group_info","gene_info","association","cell_type_anno")){
+  if (!slot %in% c("group_info","gene_info","association","cell_type_anno","obj_log")){
     stop("slot is wrong")
   }
   S4Vectors::metadata(data_obj)[[slot]] = value
@@ -49,26 +49,15 @@ set_meta_slot = function(data_obj, slot, value){
 #' The data frame has to have two columns: cell_type and Pvalue 
 #' @param trait_name name of the trait(s)
 #' @param asso_model The model used to calculate the cell type level association with the trait.
-#' @param model_gene Model genes used in the association model. The model gene will be stored in the "association" metadata slot.
 #' @return the data object with set values
 #' @keywords internal
 #' @noRd
-add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model, model_gene){ 
+add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model){ 
   if (!asso_model %in% c("linear","spearman")){
     stop("Please indicate the right model.")
   }
   full_asso_list =  get_meta_slot(data_obj,"association")
-  #check if model genes contradict
-  if(is.null(full_asso_list[["model_gene"]][[asso_model]])){
-    full_asso_list[["model_gene"]][[asso_model]] = model_gene
-  }else{
-    if (any(!full_asso_list[["model_gene"]][[asso_model]] %in% model_gene)|any(! model_gene %in% full_asso_list[["model_gene"]][[asso_model]])) {
-      warning("The new model have different model genes with the previously saved association models. The old association models and results have been removed")
-      full_asso_list[["model_gene"]][[asso_model]] = model_gene
-    }
-  }
-  full_asso_list[["model_gene"]] = full_asso_list[["model_gene"]][c("linear","spearman")[names(full_asso_list[["model_gene"]]) %in% c("linear","spearman")]] #rearrange 
-  
+
   all_asso_df = full_asso_list[[asso_model]] %>% 
     keep(~!is.null(names(.)))
   all_trait_name = c(names(all_asso_df), trait_name)
@@ -82,7 +71,7 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model, model_gene)
     .[!duplicated(names(.), fromLast=TRUE)] #remove duplicated traits
   
   full_asso_list[[asso_model]] = all_asso_df 
-  full_asso_list = full_asso_list[c("linear","spearman","model_gene")[names(full_asso_list) %in% c("linear","spearman","model_gene")]] #rearrange 
+  full_asso_list = full_asso_list[c("linear","spearman")[names(full_asso_list) %in% c("linear","spearman")]] #rearrange 
   return(set_meta_slot(data_obj,"association",full_asso_list))
 }
 
@@ -136,11 +125,10 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
 ####user-friendly interface to retrieve the information
 #' Print out the summary information so far for the processing of seismicGWAS
 #' @param data_obj SingleCellExperiment object
-#' @param verbose How detailed the information is being printed?
+#' @param verbose How detailed the information is being printed? 
 #' @param info_to_print A vector or a value, specifying what you are going to print.
 #' @return The returned value depends on the input. If info_to_print parameter is null, there will be no values or data returned.
 #' @export 
-
 sce_summary_info = function(data_obj){
   
 }

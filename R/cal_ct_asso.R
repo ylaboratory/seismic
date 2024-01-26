@@ -12,16 +12,13 @@
 #' 
 cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_model = "linear") {
   #check data
-  #if (is.null(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]) ){
   if (is.null(get_meta_slot(data_obj,"group_info")[["sscore"]]) ){
     stop("You should first calculate specificity score ")
   }
   #gene filter setting
   if ((!is.null(gene_filter_setting))){
-    #if (is.null(S4Vectors::metadata(data_obj)[["gene_info"]])){
     if (meta_slot_is_null(data_obj,"gene_info")){
       stop("Please add gene annotation using 'add_gene_anno()' or 'add_glob_stat()'.")
-    #}else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(S4Vectors::metadata(data_obj)[["gene_info"]]))){
     }else if(!all(all.vars(rlang::parse_expr(gene_filter_setting)) %in% colnames(get_meta_slot(data_obj,"gene_info")))){
       stop("Something's wrong with the gene_filter_setting. Not all columns exist. ")
     }
@@ -31,7 +28,6 @@ cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_
     stop("Please indicate the right model.")
   }
   #check if gene_zscore data look good
-  #if(length( intersect( colnames(S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]]), gene_zscore_df[[1]]) )==0){
   if(length( intersect( colnames(get_meta_slot(data_obj,"group_info")[["sscore"]]), gene_zscore_df[[1]]) )==0){
     stop("The gene_zscore_df have no genes mapping to the current specificity score gene entry, you may first map genes to the same gene id type.")
   }
@@ -83,6 +79,32 @@ cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_
     purrr::map(~as.data.frame(.x))
   
   data_obj = add_ct_asso(data_obj, asso_res, names(asso_res), asso_model, model_gene)
+  
+  #add progress information
+  obj_log_list = get_meta_slot(data_obj,"obj_log")[["asso_model"]][[asso_model]]
+  obj_log_list[["progress"]] = "cal_ct_asso()"
+  if(is.null(obj_log_list[["asso_model"]][[asso_model]])){
+    model_info = vector(mode="list", length = 3) %>%
+      magrittr::set_names("gene_filter_setting","model_genes","traits")
+    model_info[["traits"]] = colnames(gene_zscore_df)[-1] %>% gsub(x=., pattern = "_zstat", replacement = "")
+  }else{
+    #check genes
+    model_info = obj_log_list[["asso_model"]][[asso_model]]
+    previous_mg = model_info[["model_genes"]] 
+    if(any(!model_gene %in% previous_mg ) | any(!previous_mg %in% model_gene)){
+      warning("The model specified genes for the model are not consistent with the previous analysis \n",
+              paste0("These genes are in the current analysis and are not present in the previous one: ",head(model_gene[!model_gene %in% previous_mg]),"\n"),
+              paste0("And these genes are in the previous analysis and are not present in the current one: ",head(previous_mg[!previous_mg %in% model_gene]),"\n"),
+              paste0("Previous traits include: ", obj_log_list[[asso_model]][["traits"]],"\n"),
+              "The previous results are still kept. But please notice that the model genes for the new joined traits are different.")
+    }
+   #update traits
+  }
+  model_info[["traits"]] = names(get_meta_slot(data_obj,"association")[[asso_model]])
+  model_info[["gene_filter_setting"]] = gene_filter_setting
+  model_info[["model_genes"]] = model_gene
+  obj_log_list[["asso_model"]][[asso_model]] = model_info
+  data_obj = set_meta_slot(data_obj,"obj_log",value=obj_log_list)
   
   return(data_obj)
 }

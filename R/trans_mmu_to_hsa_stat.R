@@ -65,12 +65,14 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
     if(multi_mapping=="mean"){
       fac_mat = sweep_sparse(fac_mat, margin=1, stats = Matrix::rowSums(fac_mat), fun = "/")
     }
-    #data_mat = (data_mat %*% Matrix::t(fac_mat)) %>% 
-    #  magrittr::set_colnames(unique(all_mapping[[to]]))
-    #get_meta_slot(data_obj,"group_info")[[slot]] = data_mat
     group_info[[slot]] = (data_mat %*% Matrix::t(fac_mat)) %>% 
       magrittr::set_colnames(unique(all_mapping[[to]])) 
   }
-  data_obj = data_obj %>% set_meta_slot(slot="group_info",group_info)
+  obj_log_list = get_meta_slot(data_obj,"obj_log")
+  obj_log_list[["progress"]] = "trans_mmu_to_hsa_stat()"
+  data_obj = data_obj %>% 
+    set_meta_slot(slot="group_info",group_info) %>%
+    set_meta_slot(slot="obj_log",obj_log_list)
+  
   return(data_obj)
 }

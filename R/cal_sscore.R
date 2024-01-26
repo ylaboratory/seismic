@@ -10,13 +10,11 @@
 
 cal_sscore = function(data_obj, out_group_mat = NULL){
   #check if the meta data is correct
-  #if (is.null(S4Vectors::metadata(data_obj)[["group_info"]]) | any(!c("cell_num","mean_mat","var_mat","ratio_mat") %in% names(S4Vectors::metadata(data_obj)[["group_info"]]))){
   if (meta_slot_is_null(data_obj,"group_info") | any(!c("cell_num","mean_mat","var_mat","ratio_mat") %in% names(get_meta_slot(data_obj,"group_info")))){
     stop("Please run cal_stat() first")
   }
   
   #reshuffle out group matrix and check if it's correct
-  #ct_names = S4Vectors::metadata(data_obj)[["group_info"]][["cell_num"]] %>% names
   ct_names = names(get_meta_slot(data_obj,"group_info")[["cell_num"]])
   if(!is.null(out_group_mat)){
     if((!is.null(rownames(out_group_mat)) & any(! ct_names %in% rownames(out_group_mat))) | (is.null(rownames(out_group_mat)) & nrow(out_group_mat)!=length(ct_names) )){
@@ -39,37 +37,31 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   var_mat = get_meta_slot(data_obj,"group_info")[["var_mat"]]
   ratio_mat = get_meta_slot(data_obj,"group_info")[["ratio_mat"]]
   
-  ##out_group_num = sum(cell_num) - cell_num
-  #all_ones = matrix(1, nrow = length(cell_num), ncol = length(cell_num))
-  
   #calculate out mean 
-  #tot_mean = sweep_sparse(mean_mat, margin = 1, stats = cell_num, fun="*")
-  #out_mean =  (all_ones %*% tot_mean - tot_mean) %>% sweep_sparse(margin = 1, stats = out_group_num, fun="/")
   tot_mean = sweep_sparse(mean_mat, margin = 1, stats = cell_num, fun="*")
   out_mean = (out_group_mat %*% tot_mean) %>% sweep_sparse(margin = 1, stats = out_group_mat %*% cell_num, fun="/")
   
   ##calculate out variance 
-  #tot_var = sweep_sparse(var_mat, margin = 1, stats = cell_num-1, fun="*")
-  #tot_mean_sq = sweep_sparse(mean_mat^2, margin = 1, stats = cell_num, fun="*")
-  #out_variance = (all_ones %*% tot_var - tot_var + all_ones %*% tot_mean_sq - tot_mean_sq - sweep_sparse(out_mean^2, margin=1, stat = out_group_num, fun="*")) %>% 
-  #tot_var = sweep_sparse(margin=1,stats=out_group_num-1, fun="/")
   tot_var = sweep_sparse(var_mat, margin = 1, stats = cell_num-1, fun="*")
   tot_mean_sq = sweep_sparse(mean_mat^2, margin = 1, stats = cell_num, fun="*")
   out_variance = (out_group_mat %*% tot_var + out_group_mat %*% tot_mean_sq - sweep_sparse(out_mean^2, margin=1, stat = out_group_mat %*% cell_num,fun="*") ) %>%
     sweep_sparse(margin=1,stats=out_group_mat %*% cell_num -1, fun="/")
   ##relative expression
-  #rel_exp = (mean_mat - out_mean)/sqrt(sweep_sparse(var_mat,margin=1, stats=cell_num-1,fun="/" ) + sweep_sparse(out_variance,margin = 1,stats = out_group_num-1, fun="/"))
   rel_exp = (mean_mat - out_mean)/sqrt(sweep_sparse(var_mat,margin=1, stats=cell_num-1,fun="/" ) + sweep_sparse(out_variance,margin = 1,stats =  out_group_mat %*% cell_num-1, fun="/"))
   
   ##specificity score
   sscore = pnorm(as.matrix(rel_exp))*ratio_mat 
-  #sscore = sscore/(all_ones %*% sscore)
   sscore = sweep_sparse(x= sscore, margin = 2, stats=Matrix::colSums(sscore), fun="/")
-  #S4Vectors::metadata(data_obj)[["group_info"]][["sscore"]] = sscore
   data_obj = get_meta_slot(data_obj,"group_info") %>%
     append(sscore) %>% 
     purrr::set_names(c(names(get_meta_slot(data_obj,"group_info")), "sscore")) %>%
     set_meta_slot(data_obj,"group_info", value=.)
-    
+  
+  obj_log_list = get_meta_slot(data_obj,"obj_log")
+  obj_log_list[["progress"]] = "cal_sscore()"
+  obj_log_list[["out_group_mat"]] = out_group_mat
+  
+  data_obj = set_meta_slot(data_obj,"obj_log",value=obj_log_list)
+  
   return(data_obj)
 }

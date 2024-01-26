@@ -109,10 +109,20 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
       dplyr::left_join(ratio_mat %>% as.matrix %>% dplyr::as_tibble(rownames="cellgroup") %>% tidyr::pivot_longer(cols=all_of(feature_name), names_to = "genename", values_to="ratio"), by=c("cellgroup"="cellgroup","genename"="genename")) 
     return(out_stat)
   }else{
-    #S4Vectors::metadata(data_obj)[["group_info"]] = list(cell_num, mean_mat, var_mat, ratio_mat) %>% purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat"))
+    #set meta info
+    obj_log_list = vector("list",length=6) %>%
+      magrittr::set_names(c("group","progress","assay_name","rare_cell_filter_thres","out_group_mat","asso_model"))
+    obj_log_list[["group"]] = group
+    obj_log_list[["progress"]] = "cal_stat"
+    obj_log_list[["assay_name"]] = assay_name
+    obj_log_list[["rare_cell_filter_thres"]] = filter_thres
+    obj_log_list[["asso_model"]] =  vector("list",length=2) %>%
+      magrittr::set_names(c("linear","spearman"))
+    
     data_obj = list(cell_num, mean_mat, var_mat, ratio_mat) %>%
       purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat")) %>%
-      set_meta_slot(data_obj,"group_info",value=.) 
+      set_meta_slot(data_obj,"group_info",value=.) %>%
+      set_meta_slot("obj_log",value = obj_log_list)
   }
   return(data_obj)
 }

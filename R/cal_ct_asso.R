@@ -93,8 +93,8 @@ cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_
     previous_mg = model_info[["model_genes"]] 
     if(any(!model_gene %in% previous_mg ) | any(!previous_mg %in% model_gene)){
       warning("The model specified genes for the model are not consistent with the previous analysis \n",
-              paste0("These genes are in the current analysis and are not present in the previous one: ",head(model_gene[!model_gene %in% previous_mg]),"\n"),
-              paste0("And these genes are in the previous analysis and are not present in the current one: ",head(previous_mg[!previous_mg %in% model_gene]),"\n"),
+              paste0("These genes are in the current analysis and are not present in the previous one: ",paste(head(model_gene[!model_gene %in% previous_mg]), collapse = ", "),"\n"),
+              paste0("And these genes are in the previous analysis and are not present in the current one: ",paste(head(previous_mg[!previous_mg %in% model_gene]),collapse = ", "),"\n"),
               paste0("Previous traits include: ", obj_log_list[[asso_model]][["traits"]],"\n"),
               "The previous results are still kept. But please notice that the model genes for the new joined traits are different.")
     }

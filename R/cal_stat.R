@@ -110,15 +110,19 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
     return(out_stat)
   }else{
     #set meta info
-    obj_log_list = vector("list",length=6) %>%
-      magrittr::set_names(c("group","progress","assay_name","rare_cell_filter_thres","out_group_mat","asso_model"))
+    if(meta_slot_is_null(data_obj, "obj_log")){
+      obj_log_list = vector("list",length=6) %>%
+        magrittr::set_names(c("group","progress","assay_name","rare_cell_filter_thres","out_group_mat","asso_model"))
+      obj_log_list[["asso_model"]] =  vector("list",length=2) %>%
+        magrittr::set_names(c("linear","spearman"))
+    }else{
+      obj_log_list = get_meta_slot(data_obj,"obj_log")
+    }
     obj_log_list[["group"]] = group
-    obj_log_list[["progress"]] = "cal_stat"
+    obj_log_list[["progress"]] = "cal_stat()"
     obj_log_list[["assay_name"]] = assay_name
     obj_log_list[["rare_cell_filter_thres"]] = filter_thres
-    obj_log_list[["asso_model"]] =  vector("list",length=2) %>%
-      magrittr::set_names(c("linear","spearman"))
-    
+  
     data_obj = list(cell_num, mean_mat, var_mat, ratio_mat) %>%
       purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat")) %>%
       set_meta_slot(data_obj,"group_info",value=.) %>%

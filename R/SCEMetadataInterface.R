@@ -116,8 +116,16 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
   if(merge_output){
     asso_df_list = asso_df_list %>%
       purrr::map(~select(.x, cell_type,Pvalue)) %>%
-      purrr::map2(names(.), ~magrittr::set_colnames(.x,c("cell_type",.y))) %>% 
-      purrr::reduce(~left_join(.x,.y,by="cell_type"))
+      purrr::map2(names(.), ~magrittr::set_colnames(.x,c("cell_type",.y))) 
+    #check if the group contradict
+    all_cell_names = asso_df_list %>%
+      purrr::map(~pull(.x,"cell_type")) 
+    if(length(all_cell_names[[1]])!= length(unique(purrr::reduce(all_cell_names, ~c(.x,.y))))){
+      warning("It seems like some cell type level association for some traits did not match. Probably the results are not from the same time of analysis. Merge output is not recommended")
+    }
+    #print out results
+    asso_df_list = asso_df_list %>%
+      purrr::reduce(~full_join(.x,.y,by="cell_type"))
   }
   return(asso_df_list)
 }
@@ -125,10 +133,54 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
 ####user-friendly interface to retrieve the information
 #' Print out the summary information so far for the processing of seismicGWAS
 #' @param data_obj SingleCellExperiment object
-#' @param verbose How detailed the information is being printed? 
-#' @param info_to_print A vector or a value, specifying what you are going to print.
+#' @param verbose How detailed the information is being printed? If this is set to be False, only part of the running log will be return.
+#' The more detailed information will be printed out if this is set to True.
+#' @param info_to_return If true, the whole metadata
 #' @return The returned value depends on the input. If info_to_print parameter is null, there will be no values or data returned.
 #' @export 
-sce_summary_info = function(data_obj){
+sce_summary_info = function(data_obj, verbose = F, info_to_return = F){
+  if(meta_slot_is_null(data_obj,"obj_log")){
+    message("You have not started analysis, no log information exist")
+    return()
+  }
+  obj_log_list = get_meta_slot(data_obj,"obj_log")
+  message("The data set includes information of ",nrow(facs.sce)," genes and ",ncol(facs.sce),"cells. \n")
+  if(verbose){
+    message("The genes include ",paste(head(rownames(facs.sce)),collapse = ", "), ".\n")
+  }
+  message("And the analysis granularity is",obj_log_list[["group"]], " in ",obj_log_list[["assay_name"]]," assay \n")
+  if(verbose){
+    if( !is.null(obj_log_list[["rare_cell_filter_thres"]])){
+      message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left. \n")
+    }
+    message("The cell types include ",paste(head(names(get_meta_slot(data_obj,"group_info")[["cell_num"]])),collapse = ", "), ".\n")
+  }
+  message(paste0("The previously step is ",obj_log_list[["progress"]]," \n"))
+  if(obj_log_list[["progress"]]!="cal_stat()"){
+    if(is.null(obj_log_list[["out_group_mat"]])){
+      message("Basic specificity score is calculated. \n")
+    }else{
+      message("A out group matrix was used to specify the out group assignment for different cell types. \n")
+    }
+    if(verbose){
+      message("Genes in the specificity score matrix now include ",paste(head(colnames(t)),collapse = ", "),".\n")
+    }
+  }
+  #if has calculated the association
+  if(obj_log_list[["progress"]]=="cal_ct_asso()" ){
+    message("Cell type associations have been calculated using the ",paste(names(obj_log_list[["asso_model"]] %>% purrr::keep(~is.null(.x))),collapse = ", ")," model(s). \n")
+    for (model in obj_log_list[["aaso_model"]]){
+      if(!is.null(model)){
+        message("Association have been calculated using ",length(model[["model_genes"]])," genes with the ",model," model in ", length(model[["traits"]])," traits.")
+        if(verbose){
+          message("The traits include: ", paste(model[["traits"]], collapse = ", "),".")
+        }
+        message("\n")
+      }
+    }
+  } 
   
+  if(info_to_return){
+    return(obj_log_list)
+  }
 }

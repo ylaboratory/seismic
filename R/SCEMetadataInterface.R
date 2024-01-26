@@ -138,7 +138,7 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
 #' @param info_to_return If true, the whole metadata
 #' @return The returned value depends on the input. If info_to_print parameter is null, there will be no values or data returned.
 #' @export 
-sce_summary_info = function(data_obj, verbose = F, info_to_return = F){
+seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   if(meta_slot_is_null(data_obj,"obj_log")){
     message("You have not started analysis, no log information exist")
     return()

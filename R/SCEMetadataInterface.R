@@ -144,43 +144,47 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
     return()
   }
   obj_log_list = get_meta_slot(data_obj,"obj_log")
-  message("The data set includes information of ",nrow(facs.sce)," genes and ",ncol(facs.sce),"cells. \n")
+  message("Basic settings: ")
+  message("The data set includes information of ",nrow(facs.sce)," genes and ",ncol(facs.sce),"cells.")
   if(verbose){
-    message("The genes include ",paste(head(rownames(facs.sce)),collapse = ", "), ".\n")
+    message("The genes include ",paste(head(rownames(facs.sce)),collapse = ", "), ".")
   }
-  message("And the analysis granularity is",obj_log_list[["group"]], " in ",obj_log_list[["assay_name"]]," assay \n")
+  message("And the analysis granularity is",obj_log_list[["group"]], " in ",obj_log_list[["assay_name"]]," assay.")
   if(verbose){
     if( !is.null(obj_log_list[["rare_cell_filter_thres"]])){
-      message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left. \n")
+      message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left.")
     }
-    message("The cell types include ",paste(head(names(get_meta_slot(data_obj,"group_info")[["cell_num"]])),collapse = ", "), ".\n")
+    message("The cell types include ",paste(head(names(get_meta_slot(data_obj,"group_info")[["cell_num"]])),collapse = ", "), ".")
   }
-  message(paste0("The previously step is ",obj_log_list[["progress"]]," \n"))
+  message(rep("#", getOption("width")))
+  message("Sesismic analysis information:")
+  message(paste0("The previously step is ",obj_log_list[["progress"]],"."))
   if(obj_log_list[["progress"]]!="cal_stat()"){
     if(is.null(obj_log_list[["out_group_mat"]])){
-      message("Basic specificity score is calculated. \n")
+      message("Basic specificity score is calculated.")
     }else{
-      message("A out group matrix was used to specify the out group assignment for different cell types. \n")
+      message("An out group matrix was used to specify the out group assignment for different cell types.")
     }
     if(verbose){
-      message("Genes in the specificity score matrix now include ",paste(head(colnames(t)),collapse = ", "),".\n")
+      message("Genes in the specificity score matrix (and other cell type-level information) now include ",paste(head(colnames(get_meta_slot(data_obj, "group_info")[["mean_mat"]])),collapse = ", "),".")
     }
   }
   #if has calculated the association
   if(obj_log_list[["progress"]]=="cal_ct_asso()" ){
-    message("Cell type associations have been calculated using the ",paste(names(obj_log_list[["asso_model"]] %>% purrr::keep(~is.null(.x))),collapse = ", ")," model(s). \n")
-    for (model in obj_log_list[["aaso_model"]]){
-      if(!is.null(model)){
-        message("Association have been calculated using ",length(model[["model_genes"]])," genes with the ",model," model in ", length(model[["traits"]])," traits.")
+    message("Cell type associations have been calculated using the ",paste(names(obj_log_list[["asso_model"]] %>% purrr::keep(~!is.null(.x))),collapse = ", ")," model(s).")
+    for (model in names(obj_log_list[["asso_model"]])){
+      if(!is.null(obj_log_list[["asso_model"]][[model]])){
+        message("Association have been calculated using ",length(obj_log_list[["asso_model"]][[model]][["model_genes"]])," genes with the ",model," model in ", length(obj_log_list[["asso_model"]][[model]][["traits"]])," traits.")
         if(verbose){
-          message("The traits include: ", paste(model[["traits"]], collapse = ", "),".")
+          message("The traits include: ", paste(obj_log_list[["asso_model"]][[model]][["traits"]], collapse = ", "),".")
         }
-        message("\n")
       }
     }
   } 
+  message(rep("#", getOption("width")))
   
   if(info_to_return){
     return(obj_log_list)
   }
+  
 }

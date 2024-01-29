@@ -78,14 +78,14 @@ cal_ct_asso = function(data_obj, gene_zscore_df, gene_filter_setting=NULL, asso_
     purrr::map(~dplyr::mutate(.x,FDR = p.adjust(Pvalue,method = "fdr"))) %>%
     purrr::map(~as.data.frame(.x))
   
-  data_obj = add_ct_asso(data_obj, asso_res, names(asso_res), asso_model, model_gene)
+  data_obj = add_ct_asso(data_obj, asso_res, names(asso_res), asso_model)
   
   #add progress information
-  obj_log_list = get_meta_slot(data_obj,"obj_log")[["asso_model"]][[asso_model]]
+  obj_log_list = get_meta_slot(data_obj,"obj_log")
   obj_log_list[["progress"]] = "cal_ct_asso()"
   if(is.null(obj_log_list[["asso_model"]][[asso_model]])){
     model_info = vector(mode="list", length = 3) %>%
-      magrittr::set_names("gene_filter_setting","model_genes","traits")
+      magrittr::set_names(c("gene_filter_setting","model_genes","traits"))
     model_info[["traits"]] = colnames(gene_zscore_df)[-1] %>% gsub(x=., pattern = "_zstat", replacement = "")
   }else{
     #check genes

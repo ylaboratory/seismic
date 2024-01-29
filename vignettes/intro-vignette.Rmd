@@ -55,7 +55,7 @@ data("mmu_hsa_mapping")
 #map mmu genes to hsa genes
 facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 #calculate global statics
-facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_exp_ct") ) 
+facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_exp_ct") ) #based on the information to subset genes 
 #or you can add some more statistics yourself
 ```
 

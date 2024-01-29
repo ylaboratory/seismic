@@ -16,6 +16,7 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   
   #reshuffle out group matrix and check if it's correct
   ct_names = names(get_meta_slot(data_obj,"group_info")[["cell_num"]])
+  ori_out_mat = out_group_mat
   if(!is.null(out_group_mat)){
     if((!is.null(rownames(out_group_mat)) & any(! ct_names %in% rownames(out_group_mat))) | (is.null(rownames(out_group_mat)) & nrow(out_group_mat)!=length(ct_names) )){
       stop("The setting of rownames is wrong.")
@@ -59,7 +60,7 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   
   obj_log_list = get_meta_slot(data_obj,"obj_log")
   obj_log_list[["progress"]] = "cal_sscore()"
-  obj_log_list[["out_group_mat"]] = out_group_mat
+  obj_log_list[["out_group_mat"]] = ori_out_mat
   
   data_obj = set_meta_slot(data_obj,"obj_log",value=obj_log_list)
   

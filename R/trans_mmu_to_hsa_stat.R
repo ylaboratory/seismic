@@ -69,7 +69,7 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
       magrittr::set_colnames(unique(all_mapping[[to]])) 
   }
   obj_log_list = get_meta_slot(data_obj,"obj_log")
-  obj_log_list[["progress"]] = "trans_mmu_to_hsa_stat()"
+  obj_log_list[["gene_trans_info"]] = c(from, to)
   data_obj = data_obj %>% 
     set_meta_slot(slot="group_info",group_info) %>%
     set_meta_slot(slot="obj_log",obj_log_list)

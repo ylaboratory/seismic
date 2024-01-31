@@ -71,6 +71,7 @@ add_gene_anno = function(data_obj, gene_anno, match_col=NULL) {
       set_meta_slot(data_obj,slot="gene_info",value=.)
   }
   
+  
   return(data_obj)
 }
 

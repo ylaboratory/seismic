@@ -140,7 +140,7 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
 #' @export 
 seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   if(meta_slot_is_null(data_obj,"obj_log")){
-    message("You have not started analysis, no log information exist")
+    message("You have not started the analysis, no log information exist")
     return()
   }
   obj_log_list = get_meta_slot(data_obj,"obj_log")
@@ -148,8 +148,11 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   message("The data set includes information of ",nrow(facs.sce)," genes and ",ncol(facs.sce),"cells.")
   if(verbose){
     message("The genes include ",paste(head(rownames(facs.sce)),collapse = ", "), ".")
+    if(is.null(obj_log_list[["gene_trans_info"]])){
+      message("The gene name is still not translated. If they are not human entrez ID, please run trans_mmu_to_hsa_stat() function afterwards or run munge_sce_mat() function intially to make gene name the right format.")
+    }
   }
-  message("And the analysis granularity is",obj_log_list[["group"]], " in ",obj_log_list[["assay_name"]]," assay.")
+  message("And the analysis is based on the granularity of ",obj_log_list[["group"]], " column in the ",obj_log_list[["assay_name"]]," assay.")
   if(verbose){
     if( !is.null(obj_log_list[["rare_cell_filter_thres"]])){
       message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left.")
@@ -166,8 +169,15 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
       message("An out group matrix was used to specify the out group assignment for different cell types.")
     }
     if(verbose){
+      if(!is.null(obj_log_list[["gene_trans_info"]])){
+        message("The gene name has been translated from ",obj_log_list[["gene_trans_info"]][1], " to ",obj_log_list[["gene_trans_info"]][2],"." )
+      }
       message("Genes in the specificity score matrix (and other cell type-level information) now include ",paste(head(colnames(get_meta_slot(data_obj, "group_info")[["mean_mat"]])),collapse = ", "),".")
     }
+  }
+  #if has added some information to genes
+  if(!meta_slot_is_null(data_obj,"gene_info")){
+    message("Some global information of genes has been added, including: ", paste(colnames(get_meta_slot(data_obj,"gene_info")), collapse = ", "),". It can be used to set a filter for removing unimportant genes.")
   }
   #if has calculated the association
   if(obj_log_list[["progress"]]=="cal_ct_asso()" ){
@@ -180,7 +190,7 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
         }
       }
     }
-  } 
+  }
   message(rep("#", getOption("width")))
   
   if(info_to_return){

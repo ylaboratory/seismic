@@ -29,7 +29,7 @@ munge_sce_mat = function(data_obj,  mapping_df, assay_name = "all",multi_mapping
   
   #merge
   new_assay = list()
-  mapping_df = mapping_df %>% mutate_all(~as.character(.))
+  mapping_df = mapping_df %>% dplyr::mutate_all(~as.character(.))  %>% dplyr::distinct_at(c(1,2))
   
   for (assay_name_i in assay_name){
     data_mat = SummarizedExperiment::assay(data_obj, assay_name_i)
@@ -40,13 +40,19 @@ munge_sce_mat = function(data_obj,  mapping_df, assay_name = "all",multi_mapping
     #subset rows
     data_mat = data_mat[match(all_mapping[[1]],rownames(data_mat)),]
     #split matrix into two
+    all_mapping = all_mapping %>% 
+      dplyr::group_by_at(2) %>%
+      dplyr::add_count() %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(is_multi_mapping = ifelse(n>=2, TRUE, FALSE))
+      
     multiple_mapping = all_mapping %>% 
-      group_by_at(2) %>%
-      filter(n()>=2) %>%
-      ungroup
-    #separate the matrix with multiple mapping a
-    single_mat = data_mat[which(!rownames(data_mat) %in% multiple_mapping[[1]]),]
-    multi_mat = data_mat[which(rownames(data_mat) %in% multiple_mapping[[1]]),]
+      dplyr::filter(is_multi_mapping)
+    single_mapping = all_mapping %>%
+      dplyr::filter(!is_multi_mapping)
+    #separate the matrix to the one with multiple mapping and the other
+    single_mat = data_mat[which(!all_mapping[["is_multi_mapping"]]),]
+    multi_mat = data_mat[which(all_mapping[["is_multi_mapping"]]),]
     
     #transform mapping 
     fac_mat = Matrix::fac2sparse(factor(multiple_mapping[[2]], levels = unique(multiple_mapping[[2]]))) 
@@ -57,7 +63,7 @@ munge_sce_mat = function(data_obj,  mapping_df, assay_name = "all",multi_mapping
     multi_mat = ( fac_mat %*% multi_mat) %>% 
       magrittr::set_rownames(unique(multiple_mapping[[2]])) %>%
       magrittr::set_colnames(colnames(data_mat))
-    single_mat = single_mat %>% magrittr::set_rownames(all_mapping %>% filter(! .[[1]] %in% multiple_mapping[[1]] ) %>% pull(2))
+    single_mat = single_mat %>% magrittr::set_rownames(single_mapping[[2]])
     data_mat = rbind(single_mat, multi_mat)
     #rearrange based on the new gene names
     data_mat = data_mat[match(unique(all_mapping[[2]]),rownames(data_mat)),]

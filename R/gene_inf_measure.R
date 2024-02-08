@@ -5,22 +5,26 @@
 
 #' @param data_obj A SingleCellExperiment object
 #' @param gene_zscore_df A gene zscore data frame. The first column is hsa_entrez and the other columns contain the MAGMA gene Z-score of traits.
-#' @param trait_name The name of the trait.
 #' @param cell_type The cell type.
+#' @param trait_name The name of the trait. By default it will be the first trait of the gene_zsore_df.
 #' @param pos_genes If only genes with positive DFBETAS value will be pick as the top influential ones?
 #' @return A data frame, containing gene DFBETAS value, cell ttpe gene specificity score, and trait gene MAGMA Z-score
 #' @export
 #' 
 
-gene_inf_measure = function(data_obj, gene_zscore_df, trait_name, cell_type,  pos_genes = T){
+gene_inf_measure = function(data_obj, gene_zscore_df,  cell_type, trait_name=NULL,  pos_genes = T){
   if(!inherits(data_obj,"SingleCellExperiment")){
     stop("object class fault")
   }
   if(!"linear" %in% names(get_meta_slot(data_obj,"association")) | get_meta_slot(data_obj,"obj_log")[["progress"]]!="cal_ct_asso()"){
     stop("Influential gene detection can only used in a linear model setting. You should first run the cal_ct_asso() function first.")
   }
-  if(!paste0(trait_name, "_zstat") %in% colnames(gene_zscore_df)){
-    stop("The specified traits do not exist in the gene_zscore_df")
+  if(is.null(trait_name) ){
+    trait_name = gsub(colnames(gene_zscore_df)[2],pattern = "_zstat",replacement = "")
+  }else{
+    if(!paste0(trait_name, "_zstat") %in% colnames(gene_zscore_df)){
+      stop("The specified traits do not exist in the gene_zscore_df")
+    }
   }
   asso_df = get_ct_asso(data_obj, trait_name = trait_name, asso_model = "linear") #also do trait name check
   if(!cell_type %in% asso_df[["cell_type"]]){
@@ -53,7 +57,7 @@ gene_inf_measure = function(data_obj, gene_zscore_df, trait_name, cell_type,  po
   #dfbetas
   dfbeta_df = sscore_df %>% 
     cbind(dfbetas(new_lm)[,2]) %>% 
-    magrittr::set_colnames(c("hsa_entrez","specificity_score","trait_z_stat","dfbetas")) 
+    magrittr::set_colnames(c("hsa_entrez","specificity_score",paste0(trait_name,"_z_stat"),"dfbetas")) 
   if(pos_genes){
     dfbeta_df = dfbeta_df %>% dplyr::mutate(influential = ifelse(dfbetas>2/sqrt(nrow(dfbeta_df)), T, F))
   }else{

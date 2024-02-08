@@ -71,7 +71,7 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model){
     .[!duplicated(names(.), fromLast=TRUE)] #remove duplicated traits
   
   full_asso_list[[asso_model]] = all_asso_df 
-  full_asso_list = full_asso_list[c("linear","spearman")[names(full_asso_list) %in% c("linear","spearman")]] #rearrange 
+  full_asso_list = full_asso_list[c("linear","spearman")[  c("linear","spearman") %in% names(full_asso_list)]] #rearrange 
   return(set_meta_slot(data_obj,"association",full_asso_list))
 }
 

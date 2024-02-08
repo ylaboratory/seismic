@@ -7,8 +7,8 @@
 gene_inf_measure(
   data_obj,
   gene_zscore_df,
-  trait_name,
   cell_type,
+  trait_name = NULL,
   pos_genes = T
 )
 }
@@ -17,9 +17,9 @@ gene_inf_measure(
 
 \item{gene_zscore_df}{A gene zscore data frame. The first column is hsa_entrez and the other columns contain the MAGMA gene Z-score of traits.}
 
-\item{trait_name}{The name of the trait.}
-
 \item{cell_type}{The cell type.}
+
+\item{trait_name}{The name of the trait. By default it will be the first trait of the gene_zsore_df.}
 
 \item{pos_genes}{If only genes with positive DFBETAS value will be pick as the top influential ones?}
 }

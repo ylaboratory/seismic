@@ -145,9 +145,9 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   }
   obj_log_list = get_meta_slot(data_obj,"obj_log")
   message("Basic settings: ")
-  message("The data set includes information of ",nrow(facs.sce)," genes and ",ncol(facs.sce),"cells.")
+  message("The data set includes information of ",nrow(data_obj)," genes and ",ncol(data_obj),"cells.")
   if(verbose){
-    message("The genes include ",paste(head(rownames(facs.sce)),collapse = ", "), ".")
+    message("The genes include ",paste(head(rownames(data_obj)),collapse = ", "), ".")
     if(is.null(obj_log_list[["gene_trans_info"]])){
       message("The gene name is still not translated. If they are not human entrez ID, please run trans_mmu_to_hsa_stat() function afterwards or run munge_sce_mat() function intially to make gene name the right format.")
     }

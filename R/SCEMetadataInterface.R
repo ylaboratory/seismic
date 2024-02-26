@@ -115,7 +115,7 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
   #merge output or not 
   if(merge_output){
     asso_df_list = asso_df_list %>%
-      purrr::map(~select(.x, cell_type,Pvalue)) %>%
+      purrr::map(~dplyr::select(.x, cell_type,Pvalue)) %>%
       purrr::map2(names(.), ~magrittr::set_colnames(.x,c("cell_type",.y))) 
     #check if the group contradict
     all_cell_names = asso_df_list %>%

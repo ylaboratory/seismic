@@ -134,7 +134,8 @@ top_inf_genes = gene_inf_measure(facs.sce, gene_zscore_df = t2d_zscore, trait_na
 library(org.Hs.eg.db)
 top_inf_genes = top_inf_genes %>% 
   mutate(hsa_symbol = mapIds(org.Hs.eg.db, keys = hsa_entrez, keytype = "ENTREZID", column = "SYMBOL"))
-head(top_inf_genes %>% arrange(-dfbetas))
+plot_gene_inf(top_inf_genes, gene_label_column = "hsa_symbol", num_top_gene_label = 10,label_repel = T, 
+              extra_labels = top_inf_genes  %>%filter(influential) %>% slice_sample(n=10) %>% pull(hsa_symbol) ) #if other extra symbols should be added
 ```
 For example, the top influential gene is SLC30A8, which is responsible for a zinc transportation into pancreatic beta-cells. The function of the top genes can be also analyzed using gene set enrichment. For example, [clusterProfiler package](https://guangchuangyu.github.io/software/clusterProfiler/) provides a great interface for functional gene set enrichment.
 ```{r}

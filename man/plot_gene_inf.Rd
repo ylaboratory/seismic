@@ -6,21 +6,24 @@
 \usage{
 plot_gene_inf(
   dfbetas_df,
+  gene_label_column = "hsa_entrez",
   num_top_gene_label = 0,
   label_pos_genes = T,
+  extra_labels = NULL,
   label_repel = F,
-  gene_label_column = NULL,
   ...
 )
 }
 \arguments{
+\item{gene_label_column}{The column name to add}
+
 \item{num_top_gene_label}{Number of top influential genes (based on DFBETAS values) to label. If it's 0 then no genes are labelled.}
 
 \item{label_pos_genes}{If only genes with positive Z score should be labelled? By default this is TRUE.}
 
-\item{label_repel}{If the labels will be expelled using the ggrepel. By default this is FALSE. This is recommended only when you have ggrepel installed.}
+\item{extra_labels}{Extra labels (besides these indicating using "num_top_gene_label" or "label_pos_genes")}
 
-\item{gene_label_column}{The column name to add}
+\item{label_repel}{If the labels will be expelled using the ggrepel. By default this is FALSE. This is recommended only when you have ggrepel installed.}
 
 \item{...}{Additional arguments passed on to \code{geom_text()} or \code{geom_text_repel()}. This can include any aesthetic properties or parameters supported by \code{geom_text()}, such as \code{size}, \code{color}, \code{angle}, and so on.}
 

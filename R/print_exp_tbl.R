@@ -65,10 +65,10 @@ print_exp_tbl = function(data_obj, table_type,main_table_path,  aux_table_path =
   #if print auxiliary file
   if(!is.null(aux_table_path)){
     aux_tbl = dplyr::tibble(cell_type = rownames(mean_mat)) %>%
-      dplyr::mutate(endoced_name = paste0("cluster.",1:n())) 
+      dplyr::mutate(encoded_name = paste0("cluster.",1:n())) 
     #print the table
     if (!dir.exists(base::dirname(aux_table_path))) {
-      message(paste0("The directory of the auxiliary table path:", base::dirname(aux_table_path) ," does not exist... cerated one.!"))
+      message(paste0("The directory of the auxilary table path:", base::dirname(aux_table_path) ," does not exist... cerated one.!"))
               dir.create(base::dirname(aux_table_path), recursive = TRUE)
     }
     write.table(aux_tbl,file=aux_table_path, col.names =  T, row.names = F, sep="\t",quote=F)

@@ -111,8 +111,8 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   }else{
     #set meta info
     if(meta_slot_is_null(data_obj, "obj_log")){
-      obj_log_list = vector("list",length=7) %>%
-        magrittr::set_names(c("group","progress","assay_name","rare_cell_filter_thres","out_group_mat","gene_trans_info","asso_model"))
+      obj_log_list = vector("list",length=8) %>%
+        magrittr::set_names(c("group","group_detail","progress","assay_name","rare_cell_filter_thres","out_group_mat","gene_trans_info","asso_model"))
       obj_log_list[["asso_model"]] =  vector("list",length=2) %>%
         magrittr::set_names(c("linear","spearman"))
     }else{
@@ -120,6 +120,7 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
       obj_log_list[["gene_trans_info"]] = NULL
     }
     obj_log_list[["group"]] = group
+    obj_log_list[["group_detail"]] = ident_group
     obj_log_list[["progress"]] = "cal_stat()"
     obj_log_list[["assay_name"]] = assay_name
     obj_log_list[["rare_cell_filter_thres"]] = filter_thres

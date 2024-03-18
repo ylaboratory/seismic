@@ -26,7 +26,7 @@ load("/grain/ql29/ad-cell-enrich/data/expr/Tabula_muris/facs/facs.sce.rda")
 ```
 
 ## Preprocess data
-Cells with low We use `scran` package for the estimation of size factors which are further employed to normalize the expression data. Before normalization, cells with low quality should be removed. For this data sets, the cells with fewer counts and higher mitochondrial RNA ratio have been removed. Thus we directly start with `scran` normalization.
+We use `scran` package for the estimation of size factors which are further employed to normalize the expression data. Before normalization, cells with low quality should be removed. For this data sets, the cells with fewer counts and higher mitochondrial RNA ratio have been removed. Thus we directly start with `scran` normalization.
 ```{r message=FALSE,warning=FALSE}
 library(scran)
 #cluster
@@ -52,10 +52,11 @@ Since this is a mouse data set, mapping genes between species is essential. This
 ```{r message=FALSE,warnings=FALSE}
 #load processed biomaRt mmu and hsa gene mapping
 data("mmu_hsa_mapping")  
-#map mmu genes to hsa genes
+#map specificity score of mmu genes to hsa genes
+#this step should be done not before cal_sscore()
 facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 #calculate global statics
-facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_exp_ct") ) #based on the information to subset genes 
+facs.sce = add_glob_stats(facs.sce, stats = c("det_cell_num","ave_exp_ct","max_exp_ct")) #based on the information to subset genes 
 #or you can add some more statistics yourself
 ```
 
@@ -111,11 +112,7 @@ co_out_mat = co_anno_table %>%
   set_colnames(sort( names(metadata(facs.sce)[["group_info"]][["cell_num"]])))
 #calculate specificity score, translate gene id and perform association analysis
 facs.sce = cal_sscore(data_obj = facs.sce, out_group_mat =  co_out_mat) 
-## the group-level statistics have been translate into human gene id level you could also re-compute the statistics, specificity score and then map to human gene id
-#facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name")
-#facs.sce = cal_sscore(data_obj = facs.sce,  out_group_mat =  co_out_mat)
-#facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
-##
+facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 facs.sce = cal_ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 facs.sce = cal_ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 

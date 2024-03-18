@@ -35,8 +35,11 @@ plot_gene_inf = function(dfbetas_df, gene_label_column="hsa_entrez", num_top_gen
     extra_labels = intersect(extra_labels, dfbetas_df[[gene_label_column]])
   }
   if (length(extra_labels)>0){
-    dfbetas_df = dfbetas_df %>% 
-      dplyr::mutate(text_label = ifelse(.data[[gene_label_column]] %in% extra_labels, .data[[gene_label_column]], text_label)) 
+    if ("text_label" %in% colnames(dfbetas_df)){
+      dfbetas_df = dfbetas_df %>%  dplyr::mutate(text_label = ifelse(.data[[gene_label_column]] %in% extra_labels, .data[[gene_label_column]], text_label)) 
+    }else{
+      dfbetas_df = dfbetas_df %>%  dplyr::mutate(text_label = ifelse(.data[[gene_label_column]] %in% extra_labels, .data[[gene_label_column]], "")) 
+    }
   }
   
  

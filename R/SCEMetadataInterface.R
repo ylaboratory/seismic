@@ -2,12 +2,13 @@
 
 #' Check if a metadata slot is empty or not.
 #' @param data_obj SingleCellExperiment object
-#' @param slot slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","gene_info","association" or ""
+#' @param slot slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","gene_info","association" or "original_group_info"
 #' @return TRUE or FALSE
 #' @keywords internal
 #' @noRd
+#' 
 meta_slot_is_null = function(data_obj, slot){
-  if (!slot %in% c("group_info","gene_info","association","cell_type_anno","obj_log")){
+  if (!slot %in% c("group_info","original_group_info","gene_info","association","cell_type_anno","obj_log")){
     stop("slot is wrong")
   }
   return(is.null(S4Vectors::metadata(data_obj)[[slot]]))
@@ -16,12 +17,12 @@ meta_slot_is_null = function(data_obj, slot){
 
 #' Get the value of a metadata slot
 #' @param data_obj SingleCellExperiment object
-#' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","gene_info","association"
+#' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","original_group_info","gene_info","association"
 #' @return the value of the sloot
 #' @keywords internal
 #' @noRd
 get_meta_slot = function(data_obj, slot){
-  if (!slot %in% c("group_info","gene_info","association","cell_type_anno","obj_log") ){
+  if (!slot %in% c("group_info","original_group_info","gene_info","association","cell_type_anno","obj_log") ){
     stop("slot is wrong")
   }
   return(S4Vectors::metadata(data_obj)[[slot]])
@@ -29,13 +30,13 @@ get_meta_slot = function(data_obj, slot){
 
 #' Set the value of a metadata slot
 #' @param data_obj SingleCellExperiment object
-#' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","gene_info","association"
+#' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","original_group_info,"gene_info","association","obj_log"
 #' @param value Value of the new slot
 #' @return the data object with a new set value
 #' @keywords internal
 #' @noRd
 set_meta_slot = function(data_obj, slot, value){
-  if (!slot %in% c("group_info","gene_info","association","cell_type_anno","obj_log")){
+  if (!slot %in% c("group_info","original_group_info","gene_info","association","cell_type_anno","obj_log")){
     stop("slot is wrong")
   }
   S4Vectors::metadata(data_obj)[[slot]] = value
@@ -145,14 +146,14 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   }
   obj_log_list = get_meta_slot(data_obj,"obj_log")
   message("Basic settings: ")
-  message("The data set includes information of ",nrow(data_obj)," genes and ",ncol(data_obj),"cells.")
+  message("The data set includes information of ",nrow(data_obj)," genes and ",ncol(data_obj)," cells.")
   if(verbose){
     message("The genes include ",paste(head(rownames(data_obj)),collapse = ", "), ".")
     if(is.null(obj_log_list[["gene_trans_info"]])){
       message("The gene name is still not translated. If they are not human entrez ID, please run trans_mmu_to_hsa_stat() function afterwards or run munge_sce_mat() function intially to make gene name the right format.")
     }
   }
-  message("And the analysis is based on the granularity of ",obj_log_list[["group"]], " column in the ",obj_log_list[["assay_name"]]," assay.")
+  message("And the analysis is based on the granularity of ",obj_log_list[["group"]], " column in the ",obj_log_list[["assay_name"]]," assay."," Examples cell type are ")
   if(verbose){
     if( !is.null(obj_log_list[["rare_cell_filter_thres"]])){
       message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left.")
@@ -196,5 +197,17 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   if(info_to_return){
     return(obj_log_list)
   }
-  
 }
+
+####reset all seismic information
+#' Print out the summary information so far for the processing of seismicGWAS
+#' @param data_obj SingleCellExperiment object
+#' @return The SingleCellExperiment object with nothing in the metadata slot
+#' @export 
+reset_meta_seismic = function(data_obj){
+  S4Vectors::metadata(data_obj) = list()
+  message("Resetting all previous seismic analysis to none.")
+  return(data_obj)
+}
+
+

@@ -40,13 +40,13 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   feature_name = rownames(SummarizedExperiment::rowData(data_obj))
   #calculate cell num
   if (is.null(meta_data)){
-    ident_group = SummarizedExperiment::colData(data_obj)[[group]]
-    if(any(is.na(ident_group))){
-      ident_group[which(is.na(ident_group))] = "NA"
-      message("The group metadata seem to include NA ones, which have been replaced with strings instead.")
-    }
+    ident_group = SummarizedExperiment::colData(data_obj)[[group]] %>% as.character()
   }else{
-    ident_group = meta_data %>% dplyr::pull(group)
+    ident_group = meta_data %>% dplyr::pull(group) %>% as.character()
+  }
+  if(any(is.na(ident_group))){
+    ident_group[which(is.na(ident_group))] = "NA"
+    message("The group metadata seem to include NA ones, which have been replaced with strings instead.")
   }
   factor_mat = Matrix::fac2sparse(factor(ident_group, levels = unique(ident_group))) #model matrix
   cell_num = factor_mat %*% rep(1, length(ident_group)) %>% as.vector() %>% stats::setNames(unique(ident_group))

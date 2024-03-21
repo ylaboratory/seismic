@@ -42,6 +42,7 @@ Basic cell group-level statistics are required for later specificity score gene 
 ```{r message=FALSE,warning=FALSE}
 #calculate basic statistics 
 facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name")
+#be sure that there is no "NA" value for the "group" column of the "meta_data"
 #calculate specificity score
 facs.sce = cal_sscore(data_obj = facs.sce) 
 #choosing out groups can be added here 

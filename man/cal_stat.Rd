@@ -9,7 +9,6 @@ cal_stat(
   group,
   meta_data = NULL,
   assay_name = "logcounts",
-  output_type = "sce",
   filter_rare_ct = TRUE,
   filter_thres = 20,
   mean_only = FALSE
@@ -20,11 +19,9 @@ cal_stat(
 
 \item{group}{The column name in metadata for grouping}
 
-\item{meta_data}{Metadata dataframe. Rownames of the data frame should be the same as the colnames of the expression matrix (keep cell ID order correct).}
+\item{meta_data}{A cell (column) metadata dataframe. Rownames of the data frame should be the same as the colnames of the expression matrix (keep cell ID order correct).}
 
 \item{assay_name}{The name of the assay to extract}
-
-\item{output_type}{The output type: either 'sce' or 'tibble'}
 
 \item{filter_rare_ct}{If cell groups with too few cells should be filtered out. By default this is set to TRUE because these groups may be contaminants or something else.}
 
@@ -33,7 +30,7 @@ cal_stat(
 \item{mean_only}{If only mean expression value calculated?}
 }
 \value{
-A SingleCellExperiment object or a tibble, depending on output_type
+A SingleCellExperiment object
 }
 \description{
 Compute group level statistics for SingleCellExperiment

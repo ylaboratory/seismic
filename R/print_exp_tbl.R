@@ -2,7 +2,7 @@
 #' 
 #' This function will print out expression table for FUMA and MAGMA analysis. Typically the output will including two tables: one main table including the expression gene set (MAGMA) or 
 #' expression covriate file (FUMA), which could be taken by MAGMA software for cell type enrichment. The cell type are recoded in to "cluster.1, ..., cluster.n"-like format since MAGMA software
-#' may ignore name separator or extreme long string (the order is the same to the cell type presents in the "cell_num" slot of the "group_info" metadata). The auxiliary table contains the mapping from the recoded cell type names to the real cell type names.
+#' may ignore name separator or extreme long string (the order is the same to the cell type presents in the "cell_num" slot of the "group_info" seismicGWAS.data). The auxiliary table contains the mapping from the recoded cell type names to the real cell type names.
 #' 
 #' @param data_obj SingleCellExperiment object. Note that MAGMA-specificity takes CPM assay and FUMA takes logCPM (or logcounts) as input. 
 #' @param table_type specify either "MAGMA" or "FUMA" data tables to be printed.
@@ -22,13 +22,13 @@ print_exp_tbl = function(data_obj, table_type,main_table_path,  aux_table_path =
     stop("table_type could be only either 'MAGMA' or 'FUMA'")
   }
   
-  #if (is.null(S4Vectors::metadata(data_obj)[["group_info"]]) | is.null(S4Vectors::metadata(data_obj)[["group_info"]][["mean_mat"]])){
-  if (meta_slot_is_null(data_obj,"group_info") | is.null(get_meta_slot(data_obj,"group_info")[["mean_mat"]])){
+  #if (meta_slot_is_null(data_obj,"group_info") | is.null(get_meta_slot(data_obj,"group_info")[["mean_mat"]])){
+  if (seismic_slot_is_null(data_obj,"group_info") | is.null(get_seismic_slot(data_obj,"group_info")[["mean_mat"]])){
     stop("The 'gene_info' slot of the metadata is empty. Run cal_stat() first.")
   }
   
-  #mean_mat = metadata(data_obj)[["group_info"]][["mean_mat"]]
-  mean_mat = get_meta_slot(data_obj,"group_info")[["mean_mat"]]
+  #mean_mat = get_meta_slot(data_obj,"group_info")[["mean_mat"]]
+  mean_mat = get_seismic_slot(data_obj,"group_info")[["mean_mat"]]
   
   #main table directory
   if (!dir.exists(base::dirname(main_table_path))) {

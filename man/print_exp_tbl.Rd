@@ -18,5 +18,5 @@ print_exp_tbl(data_obj, table_type, main_table_path, aux_table_path = NULL)
 \description{
 This function will print out expression table for FUMA and MAGMA analysis. Typically the output will including two tables: one main table including the expression gene set (MAGMA) or
 expression covriate file (FUMA), which could be taken by MAGMA software for cell type enrichment. The cell type are recoded in to "cluster.1, ..., cluster.n"-like format since MAGMA software
-may ignore name separator or extreme long string (the order is the same to the cell type presents in the "cell_num" slot of the "group_info" metadata). The auxiliary table contains the mapping from the recoded cell type names to the real cell type names.
+may ignore name separator or extreme long string (the order is the same to the cell type presents in the "cell_num" slot of the "group_info" seismicGWAS.data). The auxiliary table contains the mapping from the recoded cell type names to the real cell type names.
 }

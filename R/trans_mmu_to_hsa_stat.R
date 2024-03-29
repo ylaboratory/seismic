@@ -11,12 +11,12 @@
 #' @param from The column (as in gene_mapping_table) to translate the feature names from. 
 #' @param to The column (as in gene_mapping_table) to translate the feature names to.
 #' @param multi_mapping How to translate metrics when one feature is mapped to several? By "mean" value or "sum" value? (mean for default)
-#' @param metadata_type Meta data slots you are translating. By default all meta data (cell type-level gene mean, ratio of expression and specificity score) will be translate. 
-#' You can also specify any one ( any seceral) if you only would like to translate it (them). The cell-type level gene varaiance 
-#' @return A SingleCellExperiment object or a tibble. With meta data slots are translated into the desired gene names and previous information is kept in the "original_group_info"
+#' @param seismic_data_type The seismic data slots (metadata(data_obj)[["seismic.data"]]) you are translating. By default all seismic analysis data (cell type-level gene mean, ratio of expression and specificity score) will be translate. 
+#' You can also specify any one ( or several) if you only would like to translate it (them). The cell-type level gene varaiance 
+#' @return A SingleCellExperiment object or a tibble. With seismic analysis data slots are translated into the desired gene names and previous information is kept in the "original_group_info"
 #' @export
 #' 
-trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_mapping = "mean", metadata_type = "all") {
+trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_mapping = "mean", seismic_data_type = "all") {
   #check input type
   if (!inherits(data_obj, "SingleCellExperiment")) {
     stop("Only SingleCellExperiment class input is accepted.")
@@ -25,28 +25,35 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
   if (!all(c(from,to) %in% colnames(gene_mapping_table))) {
     stop("The gene_mapping_table is not fine or the columns of 'from' and 'to' do not exist in the table")
   }
-  #check which meta data slot should be used
-  if(!meta_slot_is_null(data_obj, "original_group_info")){
-    group_info = get_meta_slot(data_obj, "original_group_info")
+  #check which seismic data slot should be used
+  #if(!meta_slot_is_null(data_obj, "original_group_info")){
+    #group_info = get_meta_slot(data_obj, "original_group_info")
+  if(!seismic_slot_is_null(data_obj, "original_group_info")){
+    group_info = get_seismic_slot(data_obj, "original_group_info")
   }else{
-    if (meta_slot_is_null(data_obj, "group_info")){
+    #if (meta_slot_is_null(data_obj, "group_info")){
+    if (seismic_slot_is_null(data_obj, "group_info")){
       stop("You should run cal_stat() and(or) cal_sscore() first")
     }
-    group_info = get_meta_slot(data_obj, "group_info")
-    data_obj = data_obj %>% set_meta_slot(slot="original_group_info",group_info)  #set as another slot
+    #group_info = get_meta_slot(data_obj, "group_info")
+    #data_obj = data_obj %>% set_meta_slot(slot="original_group_info",group_info)  #set as another slot
+    group_info = get_seismic_slot(data_obj, "group_info")
+    data_obj = data_obj %>% set_seismic_slot(slot="original_group_info",group_info)  #set as another slot
   }
   #check metadata slots 
-  if (metadata_type!="all" & (!metadata_type %in% names(group_info))){
-    stop("The meta data slot does not exist")
+  if (seismic_data_type!="all" & (!seismic_data_type %in% names(group_info))){
+    stop("The seismic data slot does not exist")
   }
   #check feature names
-  if ( metadata_type=="all"){ 
-    slots = c("mean_mat","ratio_mat","sscore") %>%  .[. %in%  names(get_meta_slot(data_obj,"group_info"))] #only existing slots
+  if ( seismic_data_type =="all"){ 
+    #slots = c("mean_mat","ratio_mat","sscore") %>%  .[. %in%  names(get_meta_slot(data_obj,"group_info"))] #only existing slots
+    slots = c("mean_mat","ratio_mat","sscore") %>%  .[. %in%  names(get_seismic_slot(data_obj,"group_info"))] #only existing slots
   }else{
-    slots = metadata_type
+    slots = seismic_data_type 
   }
   
-  all_names = slots %>% purrr::map(~colnames(get_meta_slot(data_obj,"group_info")[[.x]])) %>% purrr::reduce(~unique(c(.x,.y))) #all names of genes
+  #all_names = slots %>% purrr::map(~colnames(get_meta_slot(data_obj,"group_info")[[.x]])) %>% purrr::reduce(~unique(c(.x,.y))) #all names of genes
+  all_names = slots %>% purrr::map(~colnames(get_seismic_slot(data_obj,"group_info")[[.x]])) %>% purrr::reduce(~unique(c(.x,.y))) #all names of genes
   
   if (!any(all_names %in% (gene_mapping_table %>% dplyr::pull(from)))){
     stop("Something's wrong. The feature names don't match the column in the gene_mapping_table")
@@ -82,12 +89,15 @@ trans_mmu_to_hsa_stat = function(data_obj, gene_mapping_table, from, to, multi_m
     group_info[[slot]] = (data_mat %*% Matrix::t(gene_fac_mat)) %>% 
       magrittr::set_colnames(unique(all_mapping[[to]])) 
   }
-  obj_log_list = get_meta_slot(data_obj,"obj_log")
+  #obj_log_list = get_meta_slot(data_obj,"obj_log")
+  obj_log_list = get_seismic_slot(data_obj,"obj_log")
   obj_log_list[["gene_trans_info"]] = c(from, to)
   group_info = group_info[c("cell_num",slots)]
   data_obj = data_obj %>% 
-    set_meta_slot(slot="group_info",group_info) %>%
-    set_meta_slot(slot="obj_log",obj_log_list)
+    #set_meta_slot(slot="group_info",group_info) %>%
+    #set_meta_slot(slot="obj_log",obj_log_list)
+    set_seismic_slot(slot="group_info",group_info) %>%
+    set_seismic_slot(slot="obj_log",obj_log_list)
   
   return(data_obj)
 }

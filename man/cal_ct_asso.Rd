@@ -18,12 +18,12 @@ cal_ct_asso(
 
 \item{gene_zscore_df}{A data frame containing human entrez id and trait MAGMA z-score. By default they are the first two columns.}
 
-\item{gene_filter_setting}{A dplyr::filter expression string for gene filter across the "gene_info" slot in the object meta data. Not setting this indicating that all genes are going to be used.}
+\item{gene_filter_setting}{A dplyr::filter expression string for gene filter across the "gene_info" slot in the seismicGWAS.data slot of the metadata. Not setting this indicating that all genes are going to be used.}
 
 \item{asso_model}{A linear model or spearman correlation ("linear" or "spearman") to test the association between cell type specificity score and MAGMA z-score.}
 }
 \value{
-A data frame (in metadata(data_obj)[\link{"association"}] slot) containing association p_value, FDR.
+A data frame (in metadata(data_obj)[\link{"seismicGWAS.data"}][\link{"association"}] slot) containing association p_value, FDR.
 }
 \description{
 Calculate association between a trait (disease) and a cell type using specificity score after computing specificity score.

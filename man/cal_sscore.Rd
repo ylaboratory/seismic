@@ -12,7 +12,7 @@ cal_sscore(data_obj, out_group_mat = NULL)
 
 \item{out_group_mat}{A matrix to specify how to choose out groups. Each row indicate if all other cell groups (in the corresponding column) are (TRUE) or are not (FALSE) out groups.
 Rows and columns should be named with the cell group names in the previous step. It's recommended to add both row names and column names to the out group matrix.
-If there aren't any names, the rows and columns should present the same order as in the cell groups (given in S4Vectors::metadata(data_obj)[\link{"group_info"}])}
+If there aren't any names, the rows and columns should present the same order as in the cell groups (given in S4Vectors::metadata(data_obj)[\link{"seismicGWAS.data"}][\link{"group_info"}])}
 }
 \value{
 A SingleCellExperiment object or a tibble, depending on the input type

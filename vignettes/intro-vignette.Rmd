@@ -42,7 +42,6 @@ Basic cell group-level statistics are required for later specificity score gene 
 ```{r message=FALSE,warning=FALSE}
 #calculate basic statistics 
 facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name")
-#be sure that there is no "NA" value for the "group" column of the "meta_data"
 #calculate specificity score
 facs.sce = cal_sscore(data_obj = facs.sce) 
 #choosing out groups can be added here 
@@ -105,14 +104,14 @@ co_anno_table = read.csv("/grain/ql29/ad-cell-enrich/data/expr/Tabula_muris/cell
 #create the adjacency matrix
 co_out_mat = co_anno_table %>%
   right_join(as.data.frame(colData(facs.sce)) %>% distinct(cluster_name, cell_ontology_id), by=c("cl_term" = "cell_ontology_id")) %>% #join annotation
-  filter(cluster_name %in% names(metadata(facs.sce)[["group_info"]][["cell_num"]])) %>%  #filter cell types that exist in the final results
+  filter(cluster_name %in% names(get_seismic_slot(facs.sce, "group_info")[["cell_num"]])) %>%  #filter cell types that exist in the final results
   mutate(cluster_name = factor(cluster_name, levels = sort(cluster_name))) %>% 
   arrange(cluster_name) %>% #make sure the matrix is in the same order of the sorted cluster names
   apply(., 1, function(x) !grepl(pattern=x[1], x=.$similar_cl_term, fixed=T) & x[1]!=.$cl_term )  %>%
-  set_rownames(sort( names(metadata(facs.sce)[["group_info"]][["cell_num"]]))) %>%
-  set_colnames(sort( names(metadata(facs.sce)[["group_info"]][["cell_num"]])))
+  set_rownames(sort( names(get_seismic_slot(facs.sce, "group_info")[["cell_num"]] ))) %>%
+  set_colnames(sort( names(get_seismic_slot(facs.sce, "group_info")[["cell_num"]] )))
 #calculate specificity score, translate gene id and perform association analysis
-facs.sce = cal_sscore(data_obj = facs.sce, out_group_mat =  co_out_mat) 
+facs.sce = cal_sscore(data_obj = facs.sce, out_group_mat =  co_out_mat)  #in this case the specificity score will still be mouse symbol as the data matrix
 facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 facs.sce = cal_ct_asso(facs.sce, t2d_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
 facs.sce = cal_ct_asso(facs.sce, mdd_zscore, gene_filter_setting = "det_cell_num>=10& ave_exp_ct > 0.1& max_exp_ct>0.1")
@@ -149,7 +148,7 @@ seismicGWAS also provides functions for easily accessing to other MAGMA-based ce
 #FUMA uses logcpm assay and MAGMA uses cpm assay
 assay(facs.sce,"cpm") = scuttle::calculateCPM(facs.sce)
 #calculate mean expression
-facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name",assay_name = "cpm", mean_only = TRUE)
+facs.sce = cal_stat(data_obj = facs.sce, meta_data = as.data.frame(colData(facs.sce)), group = "cluster_name",assay_name = "cpm", mean_only = TRUE) #only need cell type mean for later 
 #map mmu genes to hsa genes
 facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, from="mmu_symbol", to="hsa_entrez")
 #write.out
@@ -162,4 +161,18 @@ facs.sce = trans_mmu_to_hsa_stat(facs.sce, gene_mapping_table=mmu_hsa_mapping, f
 print_exp_tbl(facs.sce, "FUMA", main_table_path = "/grain/ql29/ad-cell-enrich/data/test.fuma.txt",aux_table_path = "/grain/ql29/ad-cell-enrich/data/aux.fuma.txt")
 ```
 
+Also seismicGWAS provides several tool functions, here are some of them.
+```{r}
+#get the log and overall information of the running
+seismic_summary_info(facs.sce, verbose = T) #if you specificy "info_to_return = T", a lisf of the information will be printed out.
+```
+```{r}
+#print out results
+res_df = get_ct_asso(facs.sce, trait_name = "all",asso_model = "linear", merge_output = T)
+head(res_df)
+```
+```{r}
+#delete all previous analysis and restart
+facs.sce = reset_seismic_analysis(facs.sce)
+```
 

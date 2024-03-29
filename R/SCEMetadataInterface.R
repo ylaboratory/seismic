@@ -7,11 +7,12 @@
 #' @keywords internal
 #' @noRd
 #' 
-meta_slot_is_null = function(data_obj, slot){
+#meta_slot_is_null = function(data_obj, slot){
+seismic_slot_is_null = function(data_obj, slot){
   if (!slot %in% c("group_info","original_group_info","gene_info","association","cell_type_anno","obj_log")){
     stop("slot is wrong")
   }
-  return(is.null(S4Vectors::metadata(data_obj)[[slot]]))
+  return(is.null(S4Vectors::metadata(data_obj)[["seismicGWAS.data"]][[slot]]))
 }
 
 
@@ -21,11 +22,12 @@ meta_slot_is_null = function(data_obj, slot){
 #' @return the value of the sloot
 #' @keywords internal
 #' @noRd
-get_meta_slot = function(data_obj, slot){
+#get_meta_slot = function(data_obj, slot){
+get_seismic_slot = function(data_obj, slot){
   if (!slot %in% c("group_info","original_group_info","gene_info","association","cell_type_anno","obj_log") ){
     stop("slot is wrong")
   }
-  return(S4Vectors::metadata(data_obj)[[slot]])
+  return(S4Vectors::metadata(data_obj)[["seismicGWAS.data"]][[slot]])
 }
 
 #' Set the value of a metadata slot
@@ -35,11 +37,12 @@ get_meta_slot = function(data_obj, slot){
 #' @return the data object with a new set value
 #' @keywords internal
 #' @noRd
-set_meta_slot = function(data_obj, slot, value){
+#set_meta_slot = function(data_obj, slot, value){
+set_seismic_slot = function(data_obj, slot, value){
   if (!slot %in% c("group_info","original_group_info","gene_info","association","cell_type_anno","obj_log")){
     stop("slot is wrong")
   }
-  S4Vectors::metadata(data_obj)[[slot]] = value
+  S4Vectors::metadata(data_obj)[["seismicGWAS.data"]][[slot]] = value
   return(data_obj)
 }
 
@@ -57,7 +60,8 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model){
   if (!asso_model %in% c("linear","spearman")){
     stop("Please indicate the right model.")
   }
-  full_asso_list =  get_meta_slot(data_obj,"association")
+  #full_asso_list =  get_meta_slot(data_obj,"association")
+  full_asso_list =  get_seismic_slot(data_obj,"association")
 
   all_asso_df = full_asso_list[[asso_model]] %>% 
     keep(~!is.null(names(.)))
@@ -73,7 +77,8 @@ add_ct_asso = function(data_obj, ct_asso_df, trait_name, asso_model){
   
   full_asso_list[[asso_model]] = all_asso_df 
   full_asso_list = full_asso_list[c("linear","spearman")[  c("linear","spearman") %in% names(full_asso_list)]] #rearrange 
-  return(set_meta_slot(data_obj,"association",full_asso_list))
+  #return(set_meta_slot(data_obj,"association",full_asso_list))
+  return(set_seismic_slot(data_obj,"association",full_asso_list))
 }
 
 
@@ -93,25 +98,31 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
   }
   trait_name = unlist(trait_name)
   
-  if(!asso_model %in% names(get_meta_slot(data_obj,"association")) ){
+  #if(!asso_model %in% names(get_meta_slot(data_obj,"association")) ){
+  if(!asso_model %in% names(get_seismic_slot(data_obj,"association")) ){
     stop("You have not calculated the cell type association using this model")
   }
   
   if(length(trait_name)==1){
     if(trait_name!="all"){
-      if( !trait_name %in% names(get_meta_slot(data_obj,"association")[[asso_model]])){
+      #if( !trait_name %in% names(get_meta_slot(data_obj,"association")[[asso_model]])){
+      if( !trait_name %in% names(get_seismic_slot(data_obj,"association")[[asso_model]])){
         stop("The trait are not present in the cell type association tables")
       }else{
-        return(get_meta_slot(data_obj,"association")[[asso_model]][[trait_name]])
+        #return(get_meta_slot(data_obj,"association")[[asso_model]][[trait_name]])
+        return(get_seismic_slot(data_obj,"association")[[asso_model]][[trait_name]])
       }
     }else{
-      asso_df_list = get_meta_slot(data_obj,"association")[[asso_model]]
+      #asso_df_list = get_meta_slot(data_obj,"association")[[asso_model]]
+      asso_df_list = get_seismic_slot(data_obj,"association")[[asso_model]]
     }
   }else{
-    if (any(!trait_name %in% names(get_meta_slot(data_obj,"association")[[asso_model]]))){
+    #if (any(!trait_name %in% names(get_meta_slot(data_obj,"association")[[asso_model]]))){
+    if (any(!trait_name %in% names(get_seismic_slot(data_obj,"association")[[asso_model]]))){
       stop("Some traits are not present in the cell type association tables")
     }
-    asso_df_list = get_meta_slot(data_obj,"association")[[asso_model]][trait_name]
+    #asso_df_list = get_meta_slot(data_obj,"association")[[asso_model]][trait_name]
+    asso_df_list = get_seismic_slot(data_obj,"association")[[asso_model]][trait_name]
   }
   #merge output or not 
   if(merge_output){
@@ -140,11 +151,13 @@ get_ct_asso = function(data_obj, trait_name, asso_model, merge_output = FALSE){
 #' @return The returned value depends on the input. If info_to_print parameter is null, there will be no values or data returned.
 #' @export 
 seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
-  if(meta_slot_is_null(data_obj,"obj_log")){
+  #if(meta_slot_is_null(data_obj,"obj_log")){
+  if(seismic_slot_is_null(data_obj,"obj_log")){
     message("You have not started the analysis, no log information exist")
     return()
   }
-  obj_log_list = get_meta_slot(data_obj,"obj_log")
+  #obj_log_list = get_meta_slot(data_obj,"obj_log")
+  obj_log_list = get_seismic_slot(data_obj,"obj_log")
   message("Basic settings: ")
   message("The data set includes information of ",nrow(data_obj)," genes and ",ncol(data_obj)," cells.")
   if(verbose){
@@ -156,9 +169,11 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
   message("And the analysis is based on the granularity of ",obj_log_list[["group"]], " column in the ",obj_log_list[["assay_name"]]," assay."," Examples cell type are ")
   if(verbose){
     if( !is.null(obj_log_list[["rare_cell_filter_thres"]])){
-      message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left.")
+      #message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])," cells left.")
+      message("After filtering of rare cell types with fewer than ",obj_log_list[["rare_cell_filter_thres"]]," cells, there are still ",sum(get_seismic_slot(data_obj,"group_info")[["cell_num"]])," cells left.")
     }
-    message("The cell types include ",paste(head(names(get_meta_slot(data_obj,"group_info")[["cell_num"]])),collapse = ", "), ".")
+    #message("The cell types include ",paste(head(names(get_meta_slot(data_obj,"group_info")[["cell_num"]])),collapse = ", "), ".")
+    message("The cell types include ",paste(head(names(get_seismic_slot(data_obj,"group_info")[["cell_num"]])),collapse = ", "), ".")
   }
   message(rep("#", getOption("width")))
   message("Sesismic analysis information:")
@@ -173,12 +188,15 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
       if(!is.null(obj_log_list[["gene_trans_info"]])){
         message("The gene name has been translated from ",obj_log_list[["gene_trans_info"]][1], " to ",obj_log_list[["gene_trans_info"]][2],"." )
       }
-      message("Genes in the specificity score matrix (and other cell type-level information) now include ",paste(head(colnames(get_meta_slot(data_obj, "group_info")[["mean_mat"]])),collapse = ", "),".")
+      #message("Genes in the specificity score matrix (and other cell type-level information) now include ",paste(head(colnames(get_meta_slot(data_obj, "group_info")[["mean_mat"]])),collapse = ", "),".")
+      message("Genes in the specificity score matrix (and other cell type-level information) now include ",paste(head(colnames(get_seismic_slot(data_obj, "group_info")[["mean_mat"]])),collapse = ", "),".")
     }
   }
   #if has added some information to genes
-  if(!meta_slot_is_null(data_obj,"gene_info")){
-    message("Some global information of genes has been added, including: ", paste(colnames(get_meta_slot(data_obj,"gene_info")), collapse = ", "),". It can be used to set a filter for removing unimportant genes.")
+  #if(!meta_slot_is_null(data_obj,"gene_info")){
+  if(!seismic_slot_is_null(data_obj,"gene_info")){
+    #message("Some global information of genes has been added, including: ", paste(colnames(get_meta_slot(data_obj,"gene_info")), collapse = ", "),". It can be used to set a filter for removing unimportant genes.")
+    message("Some global information of genes has been added, including: ", paste(colnames(get_seismic_slot(data_obj,"gene_info")), collapse = ", "),". It can be used to set a filter for removing unimportant genes.")
   }
   #if has calculated the association
   if(obj_log_list[["progress"]]=="cal_ct_asso()" ){
@@ -204,9 +222,12 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
 #' @param data_obj SingleCellExperiment object
 #' @return The SingleCellExperiment object with nothing in the metadata slot
 #' @export 
-reset_meta_seismic = function(data_obj){
-  S4Vectors::metadata(data_obj) = list()
-  message("Resetting all previous seismic analysis to none.")
+#reset_meta_seismic = function(data_obj){
+reset_seismic_analysis = function(data_obj){
+  if (length(S4Vectors::metadata(data_obj))>0 & "seismicGWAS.data" %in% names(S4Vectors::metadata(data_obj))){
+    S4Vectors::metadata(data_obj) = S4Vectors::metadata(data_obj)[which(names(S4Vectors::metadata(data_obj) == "seismicGWAS.data"))]
+    message("Resetting all previous seismic analysis data to none.")
+  }
   return(data_obj)
 }
 

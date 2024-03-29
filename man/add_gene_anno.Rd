@@ -3,7 +3,7 @@
 \name{add_gene_anno}
 \alias{add_gene_anno}
 \title{Add gene-level statistics or annotation to the SingleCellExperiment object
-The stored elements is in meta data as a data frame (named 'gene_anno').}
+The stored elements is in metadata (seismicGWAS.data) as a data frame (named 'gene_anno').}
 \usage{
 add_gene_anno(data_obj, gene_anno, match_col = NULL)
 }
@@ -19,5 +19,5 @@ A SincleCellExperiment object,
 }
 \description{
 Add gene-level statistics or annotation to the SingleCellExperiment object
-The stored elements is in meta data as a data frame (named 'gene_anno').
+The stored elements is in metadata (seismicGWAS.data) as a data frame (named 'gene_anno').
 }

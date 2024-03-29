@@ -3,7 +3,7 @@
 \name{add_ct_anno}
 \alias{add_ct_anno}
 \title{Add cell-type level annotation
-The stored elements is in meta data as a data frame (named 'ct_anno').}
+The stored elements is in metadata (seismicGWAS.data) as a data frame (named 'ct_anno').}
 \usage{
 add_ct_anno(data_obj, ct_anno, match_col = NULL)
 }
@@ -19,5 +19,5 @@ A SincleCellExperiment object
 }
 \description{
 Add cell-type level annotation
-The stored elements is in meta data as a data frame (named 'ct_anno').
+The stored elements is in metadata (seismicGWAS.data) as a data frame (named 'ct_anno').
 }

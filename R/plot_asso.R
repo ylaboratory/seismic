@@ -1,6 +1,6 @@
 #' Plot enrichment results. Return a ggplot object.
 #' 
-#' @param data_obj SingleCellExperiment object that contains some associtaion information in metadata (accessible via metadata(data_obj)[["association]]). It could also be a data 
+#' @param data_obj SingleCellExperiment object that contains some associtaion information in seismicGWAS.data slot (accessible via metadata(data_obj)[["seismicGWAS.data"]][["association]]). It could also be a data 
 #' frame or tibble, containing at least a "cell_type" column and at least "Pvalue" ansd "FDR" columns. 
 #' @param trait Which association result you would like to plot
 #' @param asso_model The model previously specified too calculate the cell type level association with the trait.
@@ -16,7 +16,8 @@ plot_asso = function(data_obj, trait, asso_model, show_value = "FDR", plot_top_o
     stop("Something's wrong with the plot_top_option. Not all columns exist. ")
   }
   if(inherits(data_obj, "SingleCellExperiment")){
-    if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_meta_slot(data_obj,"cell_type_anno"))))){
+    #if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_meta_slot(data_obj,"cell_type_anno"))))){
+    if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_seismic_slot(data_obj,"cell_type_anno"))))){
       stop("Something's wrong with the plot_top_option. Not all columns exist. ")
     }
     asso_df = get_ct_asso(data_obj, trait, asso_model) %>% #trait name and asso_model check here 
@@ -24,11 +25,12 @@ plot_asso = function(data_obj, trait, asso_model, show_value = "FDR", plot_top_o
       dplyr::mutate(rank = 1:n())
     #check group
     if (!is.null(group)){
-      #if(is.null(S4Vectors::metadata(data_obj)[["cell_type_anno"]]) | !group %in%  colnames(S4Vectors::metadata(data_obj)[["cell_type_anno"]])){
-      if(meta_slot_is_null(data_obj,"cell_type_anno") | !group %in%  colnames(get_meta_slot(data_obj,"cell_type_anno"))){
+      #if(meta_slot_is_null(data_obj,"cell_type_anno") | !group %in%  colnames(get_meta_slot(data_obj,"cell_type_anno"))){
+      if(seismic_slot_is_null(data_obj,"cell_type_anno") | !group %in%  colnames(get_seismic_slot(data_obj,"cell_type_anno"))){
         stop("Something's wrong with the group column. To use this you may first do add_ct_anno()")
       }else{
-        asso_df = asso_df %>% dplyr::left_join(S4Vectors::metadata(data_obj)[["cell_type_anno"]], by="cell_type")
+        #asso_df = asso_df %>% dplyr::left_join(S4Vectors::metadata(data_obj)[["cell_type_anno"]], by="cell_type")
+        asso_df = asso_df %>% dplyr::left_join(get_seismic_slot(data_obj, "cell_type_anno"), by="cell_type")
       }
     }
   }else if(is.data.frame(data_obj) | inherits(data_obj, "tbl_df")){
@@ -36,7 +38,7 @@ plot_asso = function(data_obj, trait, asso_model, show_value = "FDR", plot_top_o
       stop("Column name conflict or error in data obj")
     }
     #if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_meta_slot(data_obj,"cell_type_anno"))))){
-    if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_meta_slot(data_obj,"cell_type_anno"))))){
+    if( !is.null(plot_top_option) & !all(all.vars(rlang::parse_expr(plot_top_option)) %in% c("cell_type","Pvalue","FDR","rank",colnames(get_seismic_slot(data_obj,"cell_type_anno"))))){
       stop("Something's wrong with the plot_top_option. Not all columns exist. ")
     }
     if (!is.null(group) & !group %in% colnames(data_obj)){

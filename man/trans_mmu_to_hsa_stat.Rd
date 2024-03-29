@@ -2,10 +2,12 @@
 % Please edit documentation in R/trans_mmu_to_hsa_stat.R
 \name{trans_mmu_to_hsa_stat}
 \alias{trans_mmu_to_hsa_stat}
-\title{Translate metrics named after mouse gene id to human gene id
-Only genes with entrez ID are kept.
-Mapping can be also done between symbol, ensembl id, etc
-Features with no mapping will be discarded.}
+\title{Simply translate the gene names of the  primary information or specificity score calculated via \code{cal_stat()} (same as the original gene names in the expression matrix)
+to human (or other format of) gene id for downstream aim.
+Mapping translation can be also done between symbol, ensembl id, etc
+The gene mapping table is also provided as a data frame named \code{mmu_hsa_mapping}. In this data frame only genes with entrez ID are kept. You can also make your own mapping table.
+Features with no mapping will be discarded.
+Because calculation of the variance metric will require extra calculation based on the original data matrix, the translated variance matrix will not be generated.}
 \usage{
 trans_mmu_to_hsa_stat(
   data_obj,
@@ -13,7 +15,7 @@ trans_mmu_to_hsa_stat(
   from,
   to,
   multi_mapping = "mean",
-  metadata_type = "all"
+  seismic_data_type = "all"
 )
 }
 \arguments{
@@ -27,14 +29,17 @@ trans_mmu_to_hsa_stat(
 
 \item{multi_mapping}{How to translate metrics when one feature is mapped to several? By "mean" value or "sum" value? (mean for default)}
 
-\item{metadata_type}{Meta data slots you are translating. By default all meta data (all group-level statistics and specificity score) will be translate. You can also specify anyone if you only would like to translate it.}
+\item{seismic_data_type}{The seismic data slots (metadata(data_obj)[\link{"seismic.data"}]) you are translating. By default all seismic analysis data (cell type-level gene mean, ratio of expression and specificity score) will be translate.
+You can also specify any one ( or several) if you only would like to translate it (them). The cell-type level gene varaiance}
 }
 \value{
-A SingleCellExperiment object or a tibble. With meta data slots are translate into the
+A SingleCellExperiment object or a tibble. With seismic analysis data slots are translated into the desired gene names and previous information is kept in the "original_group_info"
 }
 \description{
-Translate metrics named after mouse gene id to human gene id
-Only genes with entrez ID are kept.
-Mapping can be also done between symbol, ensembl id, etc
+Simply translate the gene names of the  primary information or specificity score calculated via \code{cal_stat()} (same as the original gene names in the expression matrix)
+to human (or other format of) gene id for downstream aim.
+Mapping translation can be also done between symbol, ensembl id, etc
+The gene mapping table is also provided as a data frame named \code{mmu_hsa_mapping}. In this data frame only genes with entrez ID are kept. You can also make your own mapping table.
 Features with no mapping will be discarded.
+Because calculation of the variance metric will require extra calculation based on the original data matrix, the translated variance matrix will not be generated.
 }

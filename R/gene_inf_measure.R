@@ -16,7 +16,8 @@ gene_inf_measure = function(data_obj, gene_zscore_df,  cell_type, trait_name=NUL
   if(!inherits(data_obj,"SingleCellExperiment")){
     stop("object class fault")
   }
-  if(!"linear" %in% names(get_meta_slot(data_obj,"association")) | get_meta_slot(data_obj,"obj_log")[["progress"]]!="cal_ct_asso()"){
+  #if(!"linear" %in% names(get_meta_slot(data_obj,"association")) | get_meta_slot(data_obj,"obj_log")[["progress"]]!="cal_ct_asso()"){
+  if(!"linear" %in% names(get_seismic_slot(data_obj,"association")) | get_seismic_slot(data_obj,"obj_log")[["progress"]]!="cal_ct_asso()"){
     stop("Influential gene detection can only used in a linear model setting. You should first run the cal_ct_asso() function first.")
   }
   if(is.null(trait_name) ){
@@ -37,8 +38,10 @@ gene_inf_measure = function(data_obj, gene_zscore_df,  cell_type, trait_name=NUL
   if(fdr_value > 0.05){
     warning("The association pair you choose does not seem significant enough (FDR 0.05 threshold here), the results may be unrelieable")
   }
-  model_gene = get_meta_slot(data_obj,"obj_log")[["asso_model"]][["linear"]][["model_genes"]]
-  sscore_df = get_meta_slot(data_obj,"group_info")[["sscore"]] %>%
+  #model_gene = get_meta_slot(data_obj,"obj_log")[["asso_model"]][["linear"]][["model_genes"]]
+  model_gene = get_seismic_slot(data_obj,"obj_log")[["asso_model"]][["linear"]][["model_genes"]]
+  #sscore_df = get_meta_slot(data_obj,"group_info")[["sscore"]] %>%
+  sscore_df = get_seismic_slot(data_obj,"group_info")[["sscore"]] %>%
     .[which(rownames(.)==cell_type),] %>%
     dplyr::as_tibble(rownames = "gene_name") %>% 
     dplyr::mutate(gene_name = as.character(gene_name)) #

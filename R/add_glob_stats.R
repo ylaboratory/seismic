@@ -14,7 +14,8 @@
 #' @export
 #' 
 add_glob_stats = function(data_obj, stats=NULL) {
-  if (meta_slot_is_null(data_obj,"group_info")){
+  # if (meta_slot_is_null(data_obj,"group_info")){
+  if (seismic_slot_is_null(data_obj,"group_info")){
     stop("Please run cal_stat() first")
   }
   if (is.null(stats) | (!all(stats %in% c("det_cell_num","ave_exp_ct","max_exp_ct","ave_rat_ct","max_rat_ct","ave_exp_all")))){
@@ -22,35 +23,42 @@ add_glob_stats = function(data_obj, stats=NULL) {
   }
   
   if ("det_cell_num" %in% stats){
-    det_cell_num = sweep_sparse(get_meta_slot(data_obj,"group_info")[["ratio_mat"]],margin=1, stats = get_meta_slot(data_obj,"group_info")[["cell_num"]], fun = "*")
+    #det_cell_num = sweep_sparse(get_meta_slot(data_obj,"group_info")[["ratio_mat"]],margin=1, stats = get_meta_slot(data_obj,"group_info")[["cell_num"]], fun = "*")
+    det_cell_num = sweep_sparse(get_seismic_slot(data_obj,"group_info")[["ratio_mat"]],margin=1, stats = get_seismic_slot(data_obj,"group_info")[["cell_num"]], fun = "*")
     det_cell_num = Matrix::colSums(det_cell_num)
     data_obj = add_gene_anno(data_obj, gene_anno = det_cell_num)
   }
   
   if ("ave_exp_ct" %in% stats){
-    ave_exp_ct = Matrix::colMeans(get_meta_slot(data_obj,"group_info")[["mean_mat"]])
+    #ave_exp_ct = Matrix::colMeans(get_meta_slot(data_obj,"group_info")[["mean_mat"]])
+    ave_exp_ct = Matrix::colMeans(get_seismic_slot(data_obj,"group_info")[["mean_mat"]])
     data_obj = add_gene_anno(data_obj, gene_anno = ave_exp_ct)
   }
   
   if ("max_exp_ct" %in% stats){
-    max_exp_ct = sparseMatrixStats::colMaxs(get_meta_slot(data_obj,"group_info")[["mean_mat"]]) %>% purrr::set_names(colnames(get_meta_slot(data_obj,"group_info")[["mean_mat"]]))
+    #max_exp_ct = sparseMatrixStats::colMaxs(get_meta_slot(data_obj,"group_info")[["mean_mat"]]) %>% purrr::set_names(colnames(get_meta_slot(data_obj,"group_info")[["mean_mat"]]))
+    max_exp_ct = sparseMatrixStats::colMaxs(get_seismic_slot(data_obj,"group_info")[["mean_mat"]]) %>% purrr::set_names(colnames(get_seismic_slot(data_obj,"group_info")[["mean_mat"]]))
     data_obj = add_gene_anno(data_obj, gene_anno = max_exp_ct)
   }
   
   if ("ave_rat_ct" %in% stats){
-    ave_rat_ct = Matrix::colMeans(get_meta_slot(data_obj,"group_info")[["ratio_mat"]])
+    #ave_rat_ct = Matrix::colMeans(get_meta_slot(data_obj,"group_info")[["ratio_mat"]])
+    ave_rat_ct = Matrix::colMeans(get_seismic_slot(data_obj,"group_info")[["ratio_mat"]])
     data_obj = add_gene_anno(data_obj, gene_anno = ave_rat_ct)
   }
   
   if ("max_rat_ct" %in% stats){
-    max_rat_ct = sparseMatrixStats::colMaxs(get_meta_slot(data_obj,"group_info")[["ratio_mat"]])
+    #max_rat_ct = sparseMatrixStats::colMaxs(get_meta_slot(data_obj,"group_info")[["ratio_mat"]])
+    max_rat_ct = sparseMatrixStats::colMaxs(get_seismic_slot(data_obj,"group_info")[["ratio_mat"]])
     data_obj = add_gene_anno(data_obj, gene_anno = max_rat_ct)
   }
   
   if ("ave_exp_all" %in% stats){
-    ave_exp_all = sweep_sparse(get_meta_slot(data_obj,"group_info")[["mean_mat"]],margin=1, stats = get_meta_slot(data_obj,"group_info")[["cell_num"]]) %>%
+    #ave_exp_all = sweep_sparse(get_meta_slot(data_obj,"group_info")[["mean_mat"]],margin=1, stats = get_meta_slot(data_obj,"group_info")[["cell_num"]]) %>%
+    ave_exp_all = sweep_sparse(get_seismic_slot(data_obj,"group_info")[["mean_mat"]],margin=1, stats = get_seismic_slot(data_obj,"group_info")[["cell_num"]]) %>%
       Matrix::colSums() %>%
-      `/`(sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])) 
+      #`/`(sum(get_meta_slot(data_obj,"group_info")[["cell_num"]])) 
+      `/`(sum(get_seismic_slot(data_obj,"group_info")[["cell_num"]])) 
     data_obj = add_gene_anno(data_obj, gene_anno = ave_exp_all)
   }
   

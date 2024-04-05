@@ -19,7 +19,7 @@ seismic_slot_is_null = function(data_obj, slot){
 #' Get the value of a metadata slot
 #' @param data_obj SingleCellExperiment object
 #' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","original_group_info","gene_info","association"
-#' @return the value of the sloot
+#' @return the value of the slot
 #' @keywords internal
 #' @noRd
 #get_meta_slot = function(data_obj, slot){
@@ -30,7 +30,21 @@ get_seismic_slot = function(data_obj, slot){
   return(S4Vectors::metadata(data_obj)[["seismicGWAS.data"]][[slot]])
 }
 
-#' Set the value of a metadata slot
+#' Get the cell type-level mean expression, specificity score or cell number information
+#' @param data_obj SingleCellExperiment object
+#' @param info_slot  cell type-level information slot to retrieve in the seismic analysis, any one of "mean_mat"(gene expression mean), "var_mat"(gene expression variance),
+#' "ratio_mat"(gene expression ratio), "cell_num"(number of cells), "sscore"(gene specificity score).
+#' @return the value of the the information
+#' @export
+#get_meta_slot = function(data_obj, slot){
+get_seismic_ct_info = function(data_obj, info_slot){
+  if (seismic_slot_is_null(data_obj, "group_info") | !info_slot %in% names(get_seismic_slot(data_obj,"group_info"))){
+    stop("slot is wrong")
+  }
+  return(get_seismic_slot(data_obj,"group_info")[[info_slot]])
+}
+
+#' Set the value of a seismic slot
 #' @param data_obj SingleCellExperiment object
 #' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","original_group_info,"gene_info","association","obj_log"
 #' @param value Value of the new slot
@@ -43,6 +57,20 @@ set_seismic_slot = function(data_obj, slot, value){
     stop("slot is wrong")
   }
   S4Vectors::metadata(data_obj)[["seismicGWAS.data"]][[slot]] = value
+  return(data_obj)
+}
+
+#' remove a seismic slot
+#' @param data_obj SingleCellExperiment object
+#' @param slot  slot to retrieve in metadata (where seismicGWAS stores the information), any one of "group_info","original_group_info,"gene_info","association","obj_log"
+#' @param value Value of the new slot
+#' @return the data object with a new set value
+#' @keywords internal
+#' @noRd
+remove_seismic_slot = function(data_obj, slot, value){
+  if (slot %in% names(S4Vectors::metadata(data_obj)[["seismicGWAS.data"]])){
+    data_obj = set_seismic_slot(data_obj, slot, NULL)
+  }
   return(data_obj)
 }
 
@@ -230,5 +258,6 @@ reset_seismic_analysis = function(data_obj){
   }
   return(data_obj)
 }
+
 
 

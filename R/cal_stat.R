@@ -61,6 +61,28 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   }
   ct_to_keep_idx = which(cell_num>= filter_thres)
   
+  ##store results
+  #set log info
+  if(seismic_slot_is_null(data_obj, "obj_log")){
+    obj_log_list = vector("list",length=8) %>%
+      magrittr::set_names(c("group","group_detail","progress","assay_name","rare_cell_filter_thres","out_group_mat","gene_trans_info","asso_model"))
+    obj_log_list[["asso_model"]] =  vector("list",length=2) %>%
+      magrittr::set_names(c("linear","spearman"))
+  }else{
+    #obj_log_list = get_meta_slot(data_obj,"obj_log")
+    obj_log_list = get_seismic_slot(data_obj,"obj_log")
+    obj_log_list[["gene_trans_info"]] = NULL
+  }
+  obj_log_list[["group"]] = group
+  obj_log_list[["group_detail"]] = ident_group
+  obj_log_list[["progress"]] = "cal_stat()"
+  obj_log_list[["assay_name"]] = assay_name
+  obj_log_list[["rare_cell_filter_thres"]] = filter_thres
+  
+  #store log info and remove previous calculated statistics
+  data_obj = remove_seismic_slot(data_obj, "original_group_info") %>%
+    set_seismic_slot("obj_log",value = obj_log_list) 
+  
   if(mean_only){ #if variance and expression ratio are not to computed
     cell_num = cell_num[ct_to_keep_idx]
     mean_mat = mean_mat[ct_to_keep_idx,]
@@ -92,30 +114,10 @@ cal_stat = function(data_obj,  group, meta_data = NULL, assay_name = "logcounts"
   cell_num = cell_num[ct_to_keep_idx]
   mean_mat = mean_mat[ct_to_keep_idx,]
   ##output  
-  #set log info
-  #if(meta_slot_is_null(data_obj, "obj_log")){
-  if(seismic_slot_is_null(data_obj, "obj_log")){
-    obj_log_list = vector("list",length=8) %>%
-      magrittr::set_names(c("group","group_detail","progress","assay_name","rare_cell_filter_thres","out_group_mat","gene_trans_info","asso_model"))
-    obj_log_list[["asso_model"]] =  vector("list",length=2) %>%
-      magrittr::set_names(c("linear","spearman"))
-  }else{
-    #obj_log_list = get_meta_slot(data_obj,"obj_log")
-    obj_log_list = get_seismic_slot(data_obj,"obj_log")
-    obj_log_list[["gene_trans_info"]] = NULL
-  }
-  obj_log_list[["group"]] = group
-  obj_log_list[["group_detail"]] = ident_group
-  obj_log_list[["progress"]] = "cal_stat()"
-  obj_log_list[["assay_name"]] = assay_name
-  obj_log_list[["rare_cell_filter_thres"]] = filter_thres
   
   data_obj = list(cell_num, mean_mat, var_mat, ratio_mat) %>%
     purrr::set_names(c("cell_num","mean_mat","var_mat","ratio_mat")) %>%
-    #set_meta_slot(data_obj,"group_info",value=.) %>%
-    #set_meta_slot("obj_log",value = obj_log_list)
-    set_seismic_slot(data_obj,"group_info",value=.) %>%
-    set_seismic_slot("obj_log",value = obj_log_list)
+    set_seismic_slot(data_obj,"group_info",value=.) 
   
   return(data_obj)
 }

@@ -28,7 +28,7 @@ cal_sscore = function(data_obj, out_group_mat = NULL){
   #ct_names = names(get_meta_slot(data_obj,"group_info")[["cell_num"]])
   ct_names = names(group_info[["cell_num"]])
   ori_out_mat = out_group_mat
-  if(!is.null(out_group_mat) & ength(out_group_mat) > 0){
+  if(!is.null(out_group_mat) & length(out_group_mat) > 0){
     if((!is.null(rownames(out_group_mat)) & any(! ct_names %in% rownames(out_group_mat))) |  #outgroup matrix musr have rownames and colnames corresponding to all cell types
        (is.null(rownames(out_group_mat)) & nrow(out_group_mat)!=length(ct_names) )){
       stop("The setting of rownames is wrong.")

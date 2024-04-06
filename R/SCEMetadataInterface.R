@@ -253,7 +253,7 @@ seismic_summary_info = function(data_obj, verbose = F, info_to_return = F){
 #reset_meta_seismic = function(data_obj){
 reset_seismic_analysis = function(data_obj){
   if (length(S4Vectors::metadata(data_obj))>0 & "seismicGWAS.data" %in% names(S4Vectors::metadata(data_obj))){
-    S4Vectors::metadata(data_obj) = S4Vectors::metadata(data_obj)[which(names(S4Vectors::metadata(data_obj) == "seismicGWAS.data"))]
+    S4Vectors::metadata(data_obj) = S4Vectors::metadata(data_obj)[which(names(S4Vectors::metadata(data_obj)) != "seismicGWAS.data")]
     message("Resetting all previous seismic analysis data to none.")
   }
   return(data_obj)

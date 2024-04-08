@@ -3,11 +3,11 @@
 #' @description Load z-score file(s) from MAGMA output (with .genes.out tails). The file path could be the path of a single file or a directory or even a list of the past file. 
 #' For multiple  z-score files, the gene z-score will be combined together in a single data frame.
 #' @param file_path Path for the MAGMA .genes.out file (or directory or a list/vector of paths)
-#' @return A data frame with hsa_entrez and z_stat as the two columns (indicating human gene Entrez ID and its respective MAGMA z-score).
+#' @return A data frame with hsa_entrez and z_stat as the two columns (indicating human gene Entrez ID and its respective MAGMA z-score).R
 #' @export
 #' 
 load_zscore = function(file_path, name = NULL) {
-  if (length(file_path)==1 & file.info(file_path)$isdir){
+  if (length(file_path)==1 && file.info(file_path)$isdir){
     file_path = list.files(file_path, full.names=T)
   } #expand a directory
   

@@ -5,7 +5,8 @@
 #' @param margin Across columns or rows (margin=1 and 2 respectively)
 #' @param fun The column name in metadata for grouping
 #' @return A sparse matrix
-#' @export
+#' @keywords internal
+#' @noRd
 sweep_sparse = function(x, margin, stats, fun = "*") {
   #handle error 
   if((length(stats)!=1) & (length(stats)!=dim(x)[margin])){
@@ -47,7 +48,8 @@ sweep_sparse = function(x, margin, stats, fun = "*") {
 #'output:sparse matrix.
 #' @param x A sparse matrix
 #' @param fun A function that only takes one parameter
-#' @export
+#' @keywords internal
+#' @noRd
 transform_sparse = function(x, fun = "log2") {
   if (!class(x)[1] %in% c("dgTMatrix","dgCMatrix","dgRMatrix")){
     stop("Only several saprse matrix types are supported: dgTMatrix, dgCMatrix, dgRMatrix")

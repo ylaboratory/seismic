@@ -10,7 +10,7 @@ load_zscore(file_path, name = NULL)
 \item{file_path}{Path for the MAGMA .genes.out file (or directory or a list/vector of paths)}
 }
 \value{
-A data frame with hsa_entrez and z_stat as the two columns (indicating human gene Entrez ID and its respective MAGMA z-score).
+A data frame with hsa_entrez and z_stat as the two columns (indicating human gene Entrez ID and its respective MAGMA z-score).R
 }
 \description{
 Load z-score file(s) from MAGMA output (with .genes.out tails). The file path could be the path of a single file or a directory or even a list of the past file.

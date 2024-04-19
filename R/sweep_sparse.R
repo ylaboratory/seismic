@@ -1,14 +1,14 @@
-#' Similar to the base sweep function, but adapted for sparse matrices.
+#' Similar to the base sweep function, but can be used for sparse matrices as well.
 #'
 #' Enables fast computations across columns or rows (margin=1 and 2 respectively)
-#' Only dgCMatrix and dgRMatrix are accepted.
+#' Only matrix, dgeMatrix, dgTMatrix, dgCMatrix, or dgRMatrix types are supported.
 #' adapted from https://stackoverflow.com/questions/55407656/r-sweep-on-a-sparse-matrix
 #'
-#' @param x A sparse matrix.
+#' @param x A matrix (matrix, dgeMatrix, dgTMatrix, dgCMatrix, or dgRMatrix).
 #' @param margin Across columns or rows (margin=1 and 2 respectively)
 #' @param stats The column name in metadata for grouping
 #' @param fun function to be applied for each item in stats to x (along margin)
-#' @return A sparse matrix
+#' @return A matrix
 
 sweep_sparse <- function(x, margin, stats, fun = "*") {
   if ((length(stats) != 1) & (length(stats) != dim(x)[margin])) {

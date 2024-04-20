@@ -13,9 +13,12 @@ Depends:
     R (>= 4.0.0)
 Imports:
     data.table,
+    ggplot2,
+    ggrepel,
     magrittr,
     Matrix,
     SingleCellExperiment,
+    speedglm,
     SummarizedExperiment
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -25,3 +28,7 @@ BugReports: https://github.com/ylaboratory/seismic/issues
 biocViews: Annotation, Genetics, GenomeWideAssociation, SingleCell, Software, Transcriptomics
 LazyData: true
 LazyDataCompression: xz
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

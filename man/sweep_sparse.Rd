@@ -2,12 +2,12 @@
 % Please edit documentation in R/sweep_sparse.R
 \name{sweep_sparse}
 \alias{sweep_sparse}
-\title{Similar to the base sweep function, but adapted for sparse matrices.}
+\title{Similar to the base sweep function, but can be used for sparse matrices as well.}
 \usage{
 sweep_sparse(x, margin, stats, fun = "*")
 }
 \arguments{
-\item{x}{A sparse matrix.}
+\item{x}{A matrix (matrix, dgeMatrix, dgTMatrix, dgCMatrix, or dgRMatrix).}
 
 \item{margin}{Across columns or rows (margin=1 and 2 respectively)}
 
@@ -16,10 +16,10 @@ sweep_sparse(x, margin, stats, fun = "*")
 \item{fun}{function to be applied for each item in stats to x (along margin)}
 }
 \value{
-A sparse matrix
+A matrix
 }
 \description{
 Enables fast computations across columns or rows (margin=1 and 2 respectively)
-Only dgCMatrix and dgRMatrix are accepted.
+Only matrix, dgeMatrix, dgTMatrix, dgCMatrix, or dgRMatrix types are supported.
 adapted from https://stackoverflow.com/questions/55407656/r-sweep-on-a-sparse-matrix
 }

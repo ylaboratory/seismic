@@ -16,7 +16,7 @@
 #' @export
 get_ct_trait_associations <- function(sscore, magma, magma_gene_col = "GENE",
                                       magma_z_col = "ZSTAT") {
-  p_value <- FDR <- NULL # due to non-standard evaluation notes in R CMD check
+  pvalue <- FDR <- NULL # due to non-standard evaluation notes in R CMD check
 
   # if given file path to magma, check that it is loadable
   magma <- load_magma_dt(magma, magma_gene_col, magma_z_col)

@@ -8,7 +8,6 @@ plot_inf_genes(
   inf_df,
   num_labels = 10,
   consider_neg_zstat = F,
-  consider_neg_dfbetas = F,
   repel = T,
   gene_col = "gene",
   spec_col = "specificity",
@@ -29,9 +28,6 @@ will be labeled. Only genes that have \code{is_influential==T} will be labeled.}
 
 \item{consider_neg_zstat}{A Boolean value indicating whether genes with negative
 z-scores should be considered (aka for coloring and gene labels). Defaults to FALSE.}
-
-\item{consider_neg_dfbetas}{A Boolean value indicating whether genes with negative
-dfbetas should be considered (aka for coloring and gene labels). Defaults to FALSE.}
 
 \item{repel}{A Boolean value indicating whether or not to use the ggrepel
 package for clearer labeling. Defaults to TRUE.}

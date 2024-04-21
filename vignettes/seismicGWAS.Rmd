@@ -20,6 +20,7 @@ library(seismicGWAS)
 
 ```{r}
 # specificity score calculation
+# tmfacs_sce_small, ra_magma, t2d_magma are included in the package as examples
 tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col = "cluster_name")
 tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from = "mmu_symbol")
 

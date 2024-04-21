@@ -9,8 +9,6 @@
 #' will be labeled. Only genes that have `is_influential==T` will be labeled.
 #' @param consider_neg_zstat A Boolean value indicating whether genes with negative
 #' z-scores should be considered (aka for coloring and gene labels). Defaults to FALSE.
-#' @param consider_neg_dfbetas A Boolean value indicating whether genes with negative
-#' dfbetas should be considered (aka for coloring and gene labels). Defaults to FALSE.
 #' @param repel A Boolean value indicating whether or not to use the ggrepel
 #' package for clearer labeling. Defaults to TRUE.
 #' @param gene_col A character string containing the name of the gene identifier
@@ -28,11 +26,11 @@
 #' @export
 #'
 plot_inf_genes <- function(inf_df, num_labels = 10,
-                           consider_neg_zstat = F, consider_neg_dfbetas = F, repel = T,
+                           consider_neg_zstat = F, repel = T,
                            gene_col = "gene", spec_col = "specificity",
                            trait_col = "zstat", df_betas_col = "dfbetas",
                            indicator_col = "is_influential") {
-  lab = zstat = is_influential = dfbetas = plot_gene = rownum = NULL # due to non-standard evaluation notes in R CMD check
+  lab <- zstat <- is_influential <- dfbetas <- plot_gene <- rownum <- NULL # due to non-standard evaluation notes in R CMD check
 
   # check that the influential gene matrix is valid
   for (col in c(gene_col, spec_col, trait_col, df_betas_col, indicator_col))
@@ -55,16 +53,10 @@ plot_inf_genes <- function(inf_df, num_labels = 10,
     inf_df[zstat < 0, is_influential := F]
   }
 
-  if (!(consider_neg_dfbetas)) {
-    inf_df[dfbetas < 0, is_influential := F]
-    # do not want to label genes with negative dfbetas
-    inf_df[dfbetas < 0, dfbetas := 0]
-  }
-
   if (num_labels == "all") {
     inf_df[, lab := ifelse(inf_df$is_influential == T, plot_gene, lab)]
   } else if (is.numeric(num_labels)) {
-    inf_df <- inf_df[order(-abs(dfbetas)), rownum := 1:.N]
+    inf_df <- inf_df[order(-dfbetas), rownum := 1:.N]
     inf_df[is_influential == F, rownum := NA]
     inf_df[, lab := ifelse(!is.na(rownum) & rownum <= num_labels, plot_gene, lab)]
   } else {
@@ -73,10 +65,10 @@ plot_inf_genes <- function(inf_df, num_labels = 10,
 
   gg <- ggplot2::ggplot(inf_df, ggplot2::aes_string(
     x = "specificity", y = "zstat",
-    color = "is_influential", alpha = 0.8,
+    color = "is_influential",
     label = "lab"
   )) +
-    ggplot2::geom_point() +
+    ggplot2::geom_point(alpha = 0.7) +
     ggplot2::ylab("gene risk (z-score)") +
     ggplot2::xlab("specificity score") +
     ggplot2::theme(legend.position = "none") +

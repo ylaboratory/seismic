@@ -16,7 +16,7 @@
 #' @export
 get_ct_trait_associations <- function(sscore, magma, magma_gene_col = "GENE",
                                       magma_z_col = "ZSTAT") {
-  p_value = FDR = NULL # due to non-standard evaluation notes in R CMD check
+  p_value <- FDR <- NULL # due to non-standard evaluation notes in R CMD check
 
   # if given file path to magma, check that it is loadable
   magma <- load_magma_dt(magma, magma_gene_col, magma_z_col)
@@ -27,15 +27,17 @@ get_ct_trait_associations <- function(sscore, magma, magma_gene_col = "GENE",
   # clean data formatting
   sscore <- as.data.table(as.matrix(sscore), keep.rownames = T)
   setnames(sscore, "rn", "gene")
+  sscore <- melt(sscore, id.vars = "gene", variable.name = "cell_type", value.name = "specificity")
   sscore$gene <- as.character(sscore$gene)
+  sscore$cell_type <- as.character(sscore$cell_type)
+  sscore$specificity <- as.numeric(sscore$specificity)
 
   magma <- magma[, c(magma_gene_col, magma_z_col), with = F]
   names(magma) <- c("gene", "zstat")
   magma$gene <- as.character(magma$gene)
 
   # get all cell type names
-  cts <- names(sscore)
-  cts <- cts[cts != "gene"]
+  cts <- unique(sscore$cell_type)
 
   # combine the magma annots with the specificities
   dt <- merge(sscore, magma, by = "gene")
@@ -43,18 +45,16 @@ get_ct_trait_associations <- function(sscore, magma, magma_gene_col = "GENE",
 
   # calculate the association for each cell type
   res <- rbindlist(lapply(cts, function(ct) {
-    tmp_df <- dt[, c("gene", "zstat", ct), with = F]
-    names(tmp_df) <- c("gene", "zstat", "specificity")
-    slm <- speedglm::speedlm(tmp_df$zstat ~ tmp_df$specificity) # fast lm
+    slm <- speedglm::speedlm(dt[cell_type == ct]$zstat ~ dt[cell_type == ct]$specificity) # fast lm
     slm_summ <- summary(slm)$coefficients
 
     # extract the 1-sided hypothesis test p-value
     pval <- if (slm_summ[2, 1] > 0) slm_summ[2, 4] / 2 else (1 - slm_summ[2, 4] / 2)
-    return(data.table(cell_type = ct, p_value = pval))
+    return(data.table(cell_type = ct, pvalue = pval))
   }))
 
-  res[, FDR := stats::p.adjust(p_value, method = "fdr")]
-  res <- res[order(p_value, FDR)]
+  res[, FDR := stats::p.adjust(pvalue, method = "fdr")]
+  res <- res[order(pvalue, FDR)]
 
   return(res)
 }

@@ -19,7 +19,7 @@
 #' @export
 find_inf_genes <- function(ct, sscore, magma,
                            magma_gene_col = "GENE", magma_z_col = "ZSTAT") {
-  dfbetas = is_influential = NULL # due to non-standard evaluation notes in R CMD check
+  dfbetas <- is_influential <- NULL # due to non-standard evaluation notes in R CMD check
 
   # if given file path to magma, check that it is loadable
   magma <- load_magma_dt(magma, magma_gene_col, magma_z_col)
@@ -39,6 +39,7 @@ find_inf_genes <- function(ct, sscore, magma,
   sscore <- sscore[, c("gene", ct), with = F]
   names(sscore) <- c("gene", "specificity")
   sscore$gene <- as.character(sscore$gene)
+  sscore$specificity <- as.numeric(sscore$specificity)
 
   magma <- magma[, c(magma_gene_col, magma_z_col), with = F]
   names(magma) <- c("gene", "zstat")
@@ -47,17 +48,20 @@ find_inf_genes <- function(ct, sscore, magma,
   dt <- merge(sscore, magma, by = "gene")
   dt <- dt[stats::complete.cases(dt)]
   lm_out <- stats::lm(zstat ~ specificity, data = dt)
-  lm_pval <- summary(lm_out)$coefficients[2, 4]
+  lm_summ <- summary(lm_out)$coefficients
+  lm_pval <- if (lm_summ[2, 1] > 0) lm_summ[2, 4] / 2 else (1 - lm_summ[2, 4] / 2)
   if (lm_pval > 0.05) {
     warning("Cell type ", ct, " does not seem to have a significant association with trait
-         (estimated p-value ", round(lm_pval, 4), " based on a 2-sided hypothesis test,
+         (estimated p-value ", round(lm_pval, 4), " based on a 1-sided hypothesis test,
          prior to multiple hypothesis test correction, so influential gene analysis may not be as relevant")
   }
 
   dt[, dfbetas := stats::dfbetas(lm_out)[, 2]]
   thresh <- 2 / sqrt(nrow(dt))
-  dt[, is_influential := ifelse((abs(dfbetas) > thresh), T, F)]
-  dt <- dt[order(-abs(dfbetas))]
+  # only considering positive dfbetas values (since our analyses is based off of
+  # the 1-sided test of positive relationships between specificity + risk)
+  dt[, is_influential := ifelse(dfbetas > thresh, T, F)]
+  dt <- dt[order(-dfbetas)]
 
   return(dt)
 }

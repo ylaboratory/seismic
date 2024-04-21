@@ -22,8 +22,7 @@ calc_specificity <- function(sce, assay_name = "logcounts",
                              ct_label_col = "idents", min_uniq_ct = 2,
                              min_ct_size = 20, min_cells_gene_exp = 10,
                              min_avg_exp_ct = 0.1) {
-
-  ct = N = nz.count = ave_exp_ct = NULL # due to non-standard evaluation notes in R CMD check
+  ct <- N <- nz.count <- ave_exp_ct <- NULL # due to non-standard evaluation notes in R CMD check
 
   # data formatting checks
   if (!inherits(sce, "SingleCellExperiment")) {
@@ -47,8 +46,10 @@ calc_specificity <- function(sce, assay_name = "logcounts",
   data_mat <- SummarizedExperiment::assay(sce, assay_name)
 
   # extract cell type grouping
-  ct_groups <- data.table(cell = row.names(SummarizedExperiment::colData(sce)),
-                          ct = SummarizedExperiment::colData(sce)[[ct_label_col]], key = "ct")
+  ct_groups <- data.table(
+    cell = row.names(SummarizedExperiment::colData(sce)),
+    ct = SummarizedExperiment::colData(sce)[[ct_label_col]], key = "ct"
+  )
 
   # check that there are at least a few different cell types
   ct_groups_n <- ct_groups[, .N, by = ct]
@@ -104,7 +105,7 @@ calc_specificity <- function(sce, assay_name = "logcounts",
 
   data_mat <- data_mat[stats.dt$gene, ]
   sum_mat <- sum_mat[, stats.dt$gene]
-  mean_mat <- sum_mat[, stats.dt$gene]
+  mean_mat <- mean_mat[, stats.dt$gene]
 
   # calculate variance of gene expression per cell type
   var_mat <- (Matrix::t(data_mat^2 %*% Matrix::t(factor_mat)) - 2 * mean_mat * sum_mat +

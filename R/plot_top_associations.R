@@ -11,7 +11,7 @@
 #' @export
 #'
 plot_top_associations <- function(trait_res, fdr = T, limit = 10) {
-  score = FDR = p_value = cell_type = NULL # due to non-standard evaluation notes in R CMD check
+  score <- FDR <- pvalue <- cell_type <- NULL # due to non-standard evaluation notes in R CMD check
 
   trait_res <- as.data.table(trait_res)
   xlabel <- ""
@@ -35,7 +35,7 @@ plot_top_associations <- function(trait_res, fdr = T, limit = 10) {
     trait_res[, score := FDR]
     xlabel <- "FDR"
   } else {
-    trait_res[, score := p_value]
+    trait_res[, score := pvalue]
     xlabel <- "p-value"
   }
 
@@ -43,7 +43,7 @@ plot_top_associations <- function(trait_res, fdr = T, limit = 10) {
   xlabel <- paste0("-log10(", xlabel, ")")
 
   # filter to the top k values
-  trait_res <- trait_res[order(-p_value)] # for ties in fdr
+  trait_res <- trait_res[order(-pvalue)] # for ties in fdr
   trait_res <- trait_res[order(-score)]
   trait_res <- utils::head(trait_res, limit)
 

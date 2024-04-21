@@ -20,7 +20,7 @@ library(seismicGWAS)
 
 ```{r}
 # specificity score calculation
-tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col="cluster_name")
+tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col = "cluster_name")
 tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from = "mmu_symbol")
 
 # TBD: should we have a seismic class that wraps calc_specificity, translate_gene_ids, and get_ct_trait_associations?
@@ -29,12 +29,12 @@ tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from = "mmu_symbol")
 ```{r}
 # cell type trait associations
 ra <- get_ct_trait_associations(tmfacs_sscore_hsa, ra_magma)
-plot_top_associations(ra, limit=20)
+plot_top_associations(ra, limit = 20)
 ```
 
 ```{r}
 t2d <- get_ct_trait_associations(tmfacs_sscore_hsa, t2d_magma)
-plot_top_associations(t2d, limit=20)
+plot_top_associations(t2d, limit = 20)
 ```
 
 ```{r}
@@ -42,12 +42,12 @@ plot_top_associations(t2d, limit=20)
 # desired (use biomart)
 
 # influential gene analysis
-ct = 'Pancreas.beta cell'
-res = find_inf_genes(ct, tmfacs_sscore_hsa, t2d_magma)
+ct <- "Pancreas.beta cell"
+t2d_beta_inf_genes <- find_inf_genes(ct, tmfacs_sscore_hsa, t2d_magma)
 
 # TODO: convert gene ids to symbols and provide symbols to plot function
 
-plot_inf_genes(res, num_labels = 5)
+plot_inf_genes(t2d_beta_inf_genes, num_labels = 5)
 
 # TBD: explain why we want to focus on positive dfbetas w/ positive z-scores + the reasons why to look at others?
 # also reiterate warning to only check cell types that have significant association

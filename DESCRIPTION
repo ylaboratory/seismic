@@ -1,0 +1,34 @@
+Package: seismicGWAS
+Title: Single-cell Expression Investigation for Study of Molecular Interactions and Connections
+Version: 0.98.1
+Authors@R: c(
+    person("Qiliang", "Lai", , "ql29@rice.edu", role = c("aut", "cre")),
+    person("Ruth", "Dannenfelser", email="rtdn@rice.edu", role = c("aut"),
+           comment = c(ORCID = "0000-0002-8766-6424")),
+    person("Vicky", "Yao", email="vy@rice.edu", role = c("aut"),
+           comment = c(ORCID = "0000-0002-3201-9983")))
+Description: Discover cell type-disease associations using single-cell RNA-seq and GWAS summary statistics.
+License: BSD_3_clause + file LICENSE
+Depends: 
+    R (>= 4.0.0)
+Imports:
+    data.table,
+    ggplot2,
+    ggrepel,
+    magrittr,
+    Matrix,
+    SingleCellExperiment,
+    speedglm,
+    SummarizedExperiment
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+URL: https://github.com/ylaboratory/seismic
+BugReports: https://github.com/ylaboratory/seismic/issues
+biocViews: Annotation, Genetics, GenomeWideAssociation, SingleCell, Software, Transcriptomics
+LazyData: true
+LazyDataCompression: xz
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

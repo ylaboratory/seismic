@@ -7,6 +7,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+This vignette introduces the `seismicGWAS` package an implementation of
+the _seismic_ framework for linking cell types with traits using single-cell
+RNA-seq data and MAGMA summarized GWAS data. We organize this vignette in two
+sections: Section 1 contains a walk through using the sample data included with
+the `seismicGWAS` package, and Section 2 walks through data starting from a
+SingleCellExperiment object. In both cases, (MAGMA)[https://cncr.nl/research/magma/]
+is needed to produce gene level GWAS summaries.
+
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -14,43 +23,169 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Setup
+First, install and load the seismic package. If you have not yet installed
+`seismicGWAS`, use `devtools::install(path_to_seismic_folder)`.
+
 ```{r setup}
 library(seismicGWAS)
 ```
 
-```{r}
-# specificity score calculation
-# tmfacs_sce_small, ra_magma, t2d_magma are included in the package as examples
-tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col = "cluster_name")
-tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from = "mmu_symbol")
 
-# TBD: should we have a seismic class that wraps calc_specificity, translate_gene_ids, and get_ct_trait_associations?
+# Section 1: running _seismic_ on the included sample data
+_seismicGWAS_ includes a preloaded small single cell RNAseq dataset in the
+form of a SingleCellExperiment object `tmfacs_sce_small` 
+
+```{r}
+tmfacs_sce_small
 ```
 
+and two sample MAGMA files, one for Rheumatoid Arthritis (Okada et al. 2013)
+
 ```{r}
-# cell type trait associations
+head(ra_magma)
+```
+and one for Type 2 Diabetes (Xue et al. 2018)
+```{r}
+head(t2d_magma)
+```
+
+## Calculating cell type specificity scores
+The first step of _seismic_ is to calculate cell type specificity scores
+which will be used for subsequent cell type-trait association calculations
+and influential gene analyses. Here we provide the sample SingleCellExperiment
+object and column in the data containing cell type labels `cluster_name`.
+```{r}
+tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col='cluster_name')
+head(tmfacs_sscore)
+```
+
+The original single cell experiment in the `tmfacs_sce_small` was derived from
+Tabula Muris. To associate with human GWAS traits we need to convert the gene
+identifiers. For convenience _seismicGWAS_ has a function for translating between
+gene ids for a specificity score matrix. We change here from mouse gene symbols
+to human entrez ids to match the MAGMA data.
+```{r}
+tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from='mmu_symbol')
+head(tmfacs_sscore_hsa)
+```
+
+## Calculating cell type trait associations
+We can now get cell type-trait associations for the RA and Type 2 Diabetes data
+and plot the top 20 associations per trait. Default plots show FDR corrected
+p-values plotted on a -log scale so that stronger associations appear at the
+top of the boxplot.
+
+```{r}
+# calculate and plot the cell type-trait associations for RA
 ra <- get_ct_trait_associations(tmfacs_sscore_hsa, ra_magma)
 plot_top_associations(ra, limit = 20)
 ```
 
 ```{r}
+# calculate and plot the cell type-trait associations for T2D
 t2d <- get_ct_trait_associations(tmfacs_sscore_hsa, t2d_magma)
 plot_top_associations(t2d, limit = 20)
 ```
 
-```{r}
-# convert gene ids to symbols for each of the trait-assoc matrices if
-# desired (use biomart)
+## Influential gene analysis
+With _seismicGWAS_ we can also look at the genes driving a particular cell
+type-trait association, in a process we call influential gene analysis. Here,
+we need to select a particular cell type (in our example we choose
+pancreas beta cell) and a trait (we use Type 2 Diabetes again). It is important
+to note that influential gene calculations are only meaningful for cell
+type-trait associations that are significant. So we have chosen a cell
+type and trait that were found to be significant in the cell type-trait
+associations above.
 
-# influential gene analysis
+```{r}
+# calculate influential genes
 ct <- "Pancreas.beta cell"
 t2d_beta_inf_genes <- find_inf_genes(ct, tmfacs_sscore_hsa, t2d_magma)
+head(t2d_beta_inf_genes)
+```
+Note: Only genes with positive contributions to the cell type-trait association
+are marked influential by default. While negative contributions may be
+informative, they are not as directly interpretable and are driven by genes from
+other cell types or are somewhat cell type specific but not associated with
+the given trait.
 
-# TODO: convert gene ids to symbols and provide symbols to plot function
+Next, to aid in result interpretation we make use of the `biomaRt` package to
+convert entrez ids to gene symbols.
+```{r}
+# convert ids to symbols using biomaRt
+library(biomaRt)
 
-plot_inf_genes(t2d_beta_inf_genes, num_labels = 5)
+ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+hsa.map <- getBM(attributes = c('entrezgene_id', 'hgnc_symbol'), 
+                 filters = 'entrezgene_id', 
+                 values = t2d_beta_inf_genes$gene, 
+                 mart = ensembl)
 
-# TBD: explain why we want to focus on positive dfbetas w/ positive z-scores + the reasons why to look at others?
-# also reiterate warning to only check cell types that have significant association
+hsa.map$entrezgene_id <- as.character(hsa.map$entrezgene_id)
+t2d_beta_inf_genes <- merge(t2d_beta_inf_genes, hsa.map, 
+                            by.x='gene', by.y='entrezgene_id')
 ```
 
+We can also use the gene symbols to label the influential points in the
+influential gene plot.
+```{r}
+# plot influential genes
+plot_inf_genes(t2d_beta_inf_genes, gene_col = 'hgnc_symbol', num_labels = 5)
+```
+
+# Section 2: running _seismic_ on Tabula Muris Senis
+
+In this section we illustrate how to run the _seismicGWAS_ package on a real
+world single cell dataset from Tabula Muris.For convenience we
+use the (`scFind`)[https://github.com/hemberg-lab/scfind] package to grab
+tissue level SingleCellExperiment objects.
+
+## Grabbing Tabula Muris pancreas data with scFind
+For simplicity, we grab one tissue type's worth of data from the `scfind`
+package.
+```{r}
+# if scFind is not installed can install with devtools
+# devtools::install_github("hemberg-lab/scfind")
+library(scfind)
+sce_panc <- readRDS(url(tmfacs["Pancreas"]))
+```
+
+Explore the SCE object to find the relevant cell type column.
+```{r}
+colData(sce_panc)
+```
+The `cell_type1` field contains the cell annotations that we can use for
+calculating cell specificity scores. Right now there are some `NA` values for
+field. Lets remove them before continuing.
+
+```{r}
+# remove cells with NA from the SCE object
+sce_panc_filt <- sce_panc[,!is.na(colData(sce_panc)$cell_type1)]
+colData(sce_panc_filt)
+```
+
+## Calculating cell type-trait associations
+Now we can calculate the cell type specificity scores we will need for other
+downstream functions.
+```{r}
+# calculate cell specificity
+panc_sscore <- calc_specificity(sce_panc_filt, ct_label_col='cell_type1')
+head(panc_sscore)
+```
+
+Since we are using a subset of Tabula Muris it is time again to convert
+mouse gene symbols to human entrez ids before continuing so that we can match
+the identifiers in the human Type 2 Diabetes GWAS data.
+
+```{r}
+panc_sscore_hsa <- translate_gene_ids(panc_sscore, from='mmu_symbol')
+head(panc_sscore_hsa)
+```
+
+Finally, we can calculate cell type-trait associations as before.
+
+```{r}
+panc_t2d <- get_ct_trait_associations(panc_sscore_hsa, t2d_magma)
+plot_top_associations(panc_t2d, limit = 20)
+```

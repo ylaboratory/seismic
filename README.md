@@ -6,7 +6,7 @@ given GWAS and single cell RNA-sequencing data.
 ## Citation
 
 > Disentangling associations between complex traits and cell types with _seismic_.
-> Li Q, Dannenfelser R, Roussarie JP, Yao V. BioRxiv. April 2024.
+> Lai Q, Dannenfelser R, Roussarie JP, Yao V. BioRxiv. April 2024.
 
 ## About
 

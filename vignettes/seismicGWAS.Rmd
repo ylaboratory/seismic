@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 First, install and load the seismic package. If you have not yet installed
 `seismicGWAS`, use `devtools::install(path_to_seismic_folder)`.
 
-```{r setup}
+```{r message=FALSE}
 library(seismicGWAS)
 ```
 
@@ -36,16 +36,18 @@ library(seismicGWAS)
 _seismicGWAS_ includes a preloaded small single cell RNAseq dataset in the
 form of a SingleCellExperiment object `tmfacs_sce_small` 
 
-```{r}
+```{r message=FALSE}
 tmfacs_sce_small
 ```
 
-and two sample MAGMA files, one for Rheumatoid Arthritis (Okada et al. 2013)
+and two sample MAGMA files, one for Rheumatoid Arthritis
+([Okada et al. 2013](https://doi.org/10.1038/nature12873))
 
 ```{r}
 head(ra_magma)
 ```
-and one for Type 2 Diabetes (Xue et al. 2018)
+and one for Type 2 Diabetes
+([Xue et al. 2018](https://doi.org/10.1038/s41467-018-04951-w]))
 ```{r}
 head(t2d_magma)
 ```
@@ -57,7 +59,7 @@ and influential gene analyses. Here we provide the sample SingleCellExperiment
 object and column in the data containing cell type labels `cluster_name`.
 ```{r}
 tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col='cluster_name')
-head(tmfacs_sscore[, 1:4]) # show a truncated view of the matrix
+head(tmfacs_sscore[, 1:3]) # show a truncated view of the matrix
 ```
 
 The original single cell experiment in the `tmfacs_sce_small` was derived from
@@ -67,7 +69,7 @@ gene ids for a specificity score matrix. We change here from mouse gene symbols
 to human entrez ids to match the MAGMA data.
 ```{r}
 tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from='mmu_symbol')
-head(tmfacs_sscore_hsa[,1:4]) # show a truncated view of the matrix
+head(tmfacs_sscore_hsa[,1:3]) # show a truncated view of the matrix
 ```
 
 ## Calculating cell type trait associations
@@ -76,13 +78,13 @@ and plot the top 20 associations per trait. Default plots show FDR corrected
 p-values plotted on a -log scale so that stronger associations appear at the
 top of the boxplot.
 
-```{r, fig.width=7,fig.height=6}
+```{r, fig.width=4,fig.height=4}
 # calculate and plot the cell type-trait associations for RA
 ra <- get_ct_trait_associations(tmfacs_sscore_hsa, ra_magma)
 plot_top_associations(ra, limit = 20)
 ```
 
-```{r, fig.width=7,fig.height=6}
+```{r, fig.width=4,fig.height=4}
 # calculate and plot the cell type-trait associations for T2D
 t2d <- get_ct_trait_associations(tmfacs_sscore_hsa, t2d_magma)
 plot_top_associations(t2d, limit = 20)
@@ -112,7 +114,7 @@ the given trait.
 
 Next, to aid in result interpretation we make use of the `biomaRt` package to
 convert entrez ids to gene symbols.
-```{r}
+```{r message=FALSE}
 # convert ids to symbols using biomaRt
 library(biomaRt)
 
@@ -129,7 +131,7 @@ t2d_beta_inf_genes <- merge(t2d_beta_inf_genes, hsa.map,
 
 We can also use the gene symbols to label the influential points in the
 influential gene plot.
-```{r, fig.width=7,fig.height=5}
+```{r, fig.width=4,fig.height=3}
 # plot influential genes
 plot_inf_genes(t2d_beta_inf_genes, gene_col = 'hgnc_symbol', num_labels = 5)
 ```
@@ -148,7 +150,7 @@ tissue level SingleCellExperiment objects.
 ## Grabbing Tabula Muris pancreas data with scFind
 For simplicity, we grab one tissue type's worth of data from the `scfind`
 package.
-```{r}
+```{r message=FALSE}
 # if scFind is not installed can install with devtools
 # devtools::install_github("hemberg-lab/scfind")
 library(scfind)
@@ -178,7 +180,7 @@ downstream functions.
 ```{r}
 # calculate cell specificity
 panc_sscore <- calc_specificity(sce_panc_filt, ct_label_col='cell_type1')
-head(panc_sscore)
+head(panc_sscore[,1:4]) # show a truncated view of the matrix
 ```
 
 Since we are using a subset of Tabula Muris it is time again to convert
@@ -192,7 +194,7 @@ head(panc_sscore_hsa[,1:4]) # show a truncated view of the matrix
 
 Finally, we can calculate cell type-trait associations as before.
 
-```{r, fig.width=7,fig.height=6}
+```{r, fig.width=4,fig.height=4}
 panc_t2d <- get_ct_trait_associations(panc_sscore_hsa, t2d_magma)
 plot_top_associations(panc_t2d, limit = 20)
 ```

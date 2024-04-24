@@ -21,8 +21,8 @@ plot_top_associations <- function(trait_res, fdr = T, limit = 10) {
   if (fdr && !("FDR" %in% names(trait_res))) {
     stop("Invalid trait association matrix. Missing FDR column.")
   }
-  if (!fdr && !("p_value" %in% names(trait_res))) {
-    stop("Invalid trait association matrix. Missing p_value column.")
+  if (!fdr && !("pvalue" %in% names(trait_res))) {
+    stop("Invalid trait association matrix. Missing pvalue column.")
   }
   if (!("cell_type" %in% names(trait_res))) {
     stop("Invalid trait association matrix. Missing cell_type column.")

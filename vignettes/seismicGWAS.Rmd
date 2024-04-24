@@ -12,7 +12,7 @@ the _seismic_ framework for linking cell types with traits using single-cell
 RNA-seq data and MAGMA summarized GWAS data. We organize this vignette in two
 sections: Section 1 contains a walk through using the sample data included with
 the `seismicGWAS` package, and Section 2 walks through data starting from a
-SingleCellExperiment object. In both cases, (MAGMA)[https://cncr.nl/research/magma/]
+SingleCellExperiment object. In both cases, [MAGMA](https://cncr.nl/research/magma/)
 is needed to produce gene level GWAS summaries.
 
 
@@ -57,7 +57,7 @@ and influential gene analyses. Here we provide the sample SingleCellExperiment
 object and column in the data containing cell type labels `cluster_name`.
 ```{r}
 tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col='cluster_name')
-head(tmfacs_sscore)
+head(tmfacs_sscore[, 1:4]) # show a truncated view of the matrix
 ```
 
 The original single cell experiment in the `tmfacs_sce_small` was derived from
@@ -67,7 +67,7 @@ gene ids for a specificity score matrix. We change here from mouse gene symbols
 to human entrez ids to match the MAGMA data.
 ```{r}
 tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from='mmu_symbol')
-head(tmfacs_sscore_hsa)
+head(tmfacs_sscore_hsa[,1:4]) # show a truncated view of the matrix
 ```
 
 ## Calculating cell type trait associations
@@ -76,13 +76,13 @@ and plot the top 20 associations per trait. Default plots show FDR corrected
 p-values plotted on a -log scale so that stronger associations appear at the
 top of the boxplot.
 
-```{r}
+```{r, fig.width=7,fig.height=6}
 # calculate and plot the cell type-trait associations for RA
 ra <- get_ct_trait_associations(tmfacs_sscore_hsa, ra_magma)
 plot_top_associations(ra, limit = 20)
 ```
 
-```{r}
+```{r, fig.width=7,fig.height=6}
 # calculate and plot the cell type-trait associations for T2D
 t2d <- get_ct_trait_associations(tmfacs_sscore_hsa, t2d_magma)
 plot_top_associations(t2d, limit = 20)
@@ -129,17 +129,21 @@ t2d_beta_inf_genes <- merge(t2d_beta_inf_genes, hsa.map,
 
 We can also use the gene symbols to label the influential points in the
 influential gene plot.
-```{r}
+```{r, fig.width=7,fig.height=5}
 # plot influential genes
 plot_inf_genes(t2d_beta_inf_genes, gene_col = 'hgnc_symbol', num_labels = 5)
 ```
 
-# Section 2: running _seismic_ on Tabula Muris Senis
+# Section 2: running _seismicGWAS_ on Tabula Muris Senis
+
+Generally, we assume that users will be able
+to construct and appropriately normalize their single cell data before using
+`seismicGWAS`. For these tasks we recommend using the `scran` package.
 
 In this section we illustrate how to run the _seismicGWAS_ package on a real
-world single cell dataset from Tabula Muris.For convenience we
-use the (`scFind`)[https://github.com/hemberg-lab/scfind] package to grab
-tissue level SingleCellExperiment objects.
+world single cell dataset from Tabula Muris. For convenience we
+use the [`scFind`](https://github.com/hemberg-lab/scfind) package to grab
+tissue level SingleCellExperiment objects. 
 
 ## Grabbing Tabula Muris pancreas data with scFind
 For simplicity, we grab one tissue type's worth of data from the `scfind`
@@ -151,7 +155,10 @@ library(scfind)
 sce_panc <- readRDS(url(tmfacs["Pancreas"]))
 ```
 
-Explore the SCE object to find the relevant cell type column.
+Explore the SCE object to find the relevant cell type column. If one did not
+exist, or one did not exist with our desired specificity,
+we could create it by clustering, combining, or using other metadata and adding
+to the SCE object before continuing.
 ```{r}
 colData(sce_panc)
 ```
@@ -180,12 +187,12 @@ the identifiers in the human Type 2 Diabetes GWAS data.
 
 ```{r}
 panc_sscore_hsa <- translate_gene_ids(panc_sscore, from='mmu_symbol')
-head(panc_sscore_hsa)
+head(panc_sscore_hsa[,1:4]) # show a truncated view of the matrix
 ```
 
 Finally, we can calculate cell type-trait associations as before.
 
-```{r}
+```{r, fig.width=7,fig.height=6}
 panc_t2d <- get_ct_trait_associations(panc_sscore_hsa, t2d_magma)
 plot_top_associations(panc_t2d, limit = 20)
 ```

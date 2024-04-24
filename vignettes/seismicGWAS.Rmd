@@ -5,6 +5,9 @@ vignette: >
   %\VignetteIndexEntry{A simple introduction to seismic}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+html_notebook:
+    fig_height: 5
+    fig_width: 5
 ---
 
 This vignette introduces the `seismicGWAS` package an implementation of
@@ -23,7 +26,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Setup
+## Setup
 First, install and load the seismic package. If you have not yet installed
 `seismicGWAS`, use `devtools::install(path_to_seismic_folder)`.
 

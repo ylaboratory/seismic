@@ -44,11 +44,19 @@ calc_specificity <- function(sce, assay_name = "logcounts",
 
   # extract the log normalized counts (dgCMatrix)
   data_mat <- SummarizedExperiment::assay(sce, assay_name)
+  
+  # extract the cell metadata
+  cell_meta <- SummarizedExperiment::colData(sce)
+  
+  # make sure the cell name exist
+  if (any(is.null(rownames(cell_meta))) || any(is.null(colnames(data_mat)))){
+    rownames(cell_meta) <- colnames(data_mat) <- paste0("cell.",1:ncol(data_mat))
+  }
 
   # extract cell type grouping
   ct_groups <- data.table(
-    cell = row.names(SummarizedExperiment::colData(sce)),
-    ct = SummarizedExperiment::colData(sce)[[ct_label_col]], key = "ct"
+    cell = rownames(cell_meta),
+    ct = cell_meta[[ct_label_col]], key = "ct"
   )
 
   # check that there are at least a few different cell types

@@ -43,7 +43,7 @@ plot_top_associations <- function(trait_res, fdr = T, limit = 10) {
   xlabel <- paste0("-log10(", xlabel, ")")
 
   # filter to the top k values
-  trait_res <- trait_res[order(-pvalue)] # for ties in fdr
+  trait_res <- trait_res[order(pvalue)] # for ties in fdr
   trait_res <- trait_res[order(-score)]
   trait_res <- utils::head(trait_res, limit)
 

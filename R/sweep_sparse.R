@@ -17,6 +17,9 @@ sweep_sparse <- function(x, margin, stats, fun = "*") {
 
   # to deal with a non-sparse matrix
   if (class(x)[1] %in% c("dgeMatrix", "matrix")) {
+    if (class(x)[1] == "dgeMatrix"){
+      x <- as.matrix(x)
+    }
     return(sweep(x, margin, stats, fun))
   }
 

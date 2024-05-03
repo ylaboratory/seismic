@@ -16,8 +16,8 @@
 #'
 translate_gene_ids <- function(sscore, from = "mmu_ensembl", to = "hsa_entrez", multi_mapping = "mean") {
   # check input type
-  if (!class(sscore)[1] %in% c("dgeMatrix")) {
-    stop("This function is to be used directly with the direct output of calc_specificity().")
+  if (!class(sscore)[1] %in% c("dgeMatrix", "matrix")) {
+    stop("This function is to be used directly with the direct output of calc_specificity(). The data is not an acceptable matrix type.")
   }
 
   all_names <- unique(rownames(sscore))

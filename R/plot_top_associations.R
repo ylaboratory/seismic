@@ -2,7 +2,7 @@
 #'
 #' @param trait_res A data.frame or data.table object of cell type associations
 #' detected by seismic. It is expected that this data object contains a minimum
-#' of three columns: cell_type, p_value, and FDR.
+#' of three columns: cell_type, pvalue, and FDR.
 #' @param fdr A Boolean value determining if FDR should be plotted. If false
 #' p-values are used for the plot. Defaults to printing FDR.
 #' @param limit A positive integer limiting the number of top cell types to

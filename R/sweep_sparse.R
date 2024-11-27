@@ -14,15 +14,21 @@ sweep_sparse <- function(x, margin, stats, fun = "*") {
   if ((length(stats) != 1) & (length(stats) != dim(x)[margin])) {
     stop("stats does not match the dimension of the selected margin")
   }
-
+  
+  if (class(stats)[1] == "matrix"){
+    stats = c(stats)
+  }
+  
   # to deal with a non-sparse matrix
   if (class(x)[1] %in% c("dgeMatrix", "matrix")) {
+    res <- sweep(as.matrix(x), margin, stats, fun)
     if (class(x)[1] == "dgeMatrix"){
-      x <- as.matrix(x)
+      res <- as(res, "dgeMatrix")
     }
-    return(sweep(x, margin, stats, fun))
+    return(res)
   }
 
+  #deal with stats
   if (!class(x)[1] %in% c("dgTMatrix", "dgCMatrix", "dgRMatrix")) {
     stop("Only these sparse matrix types are supported: dgTMatrix, dgCMatrix, dgRMatrix")
   }

@@ -22,33 +22,43 @@ this process.
 
 ![method overview](man/figures/seismic_overview.png)
 
-## Installation
-To install the seismic package first clone the seismic repo and then 
-use devtools within R to point to seismic and install.
+## Installation and dependencies
+To install the _seismicGWAS_ R package first clone the _seismic_ repo and then 
+use devtools within R to point to _seismic_ and install. The R environment version
+should be 4.0.0 or higher. 
+
+```bash
 
 ```R
 devtools::install(path_to_seismic_folder)
 library('seismicGWAS')
 ```
 
+The package require several dependencies which are listed in the `DESCRIPTION` file,
+which will be installed automatically.
+
 ## Usage
-Below we quickly show how to use `seismicGWAS` to calcuate cell
+Below we quickly show how to use _seismicGWAS_ to calcuate cell
 type-trait associations for the sample data included in the package. 
 Full usage instructions, including a walk through of all major functions
-can be found in the vignette.
+can be found in the [vignette](https://github.com/ylaboratory/seismic/tree/master/vignettes/seismicGWAS.md).
 
 ```R
 # calculate cell type specificity scores using included sample data
+# estimate running time: less than 1 minute
 tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col='cluster_name')
 
 # convert mouse gene identifiers to human ones that match data in GWAS summary data
 # from MAGMA
+# estimate running time: 3 seconds
 tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from='mmu_symbol')
 
 # calculate cell type-trait associations for type 2 diabetes
+# estimate running time: less than 1 minutes
 get_ct_trait_associations(tmfacs_sscore_hsa, t2d_magma)
 
 # find the influential genes for a significant cell type-trait association
 # in type 2 diabetes
+# estimate running time: 10 seconds
 find_inf_genes("Pancreas.beta cell", tmfacs_sscore_hsa, t2d_magma)
 ```

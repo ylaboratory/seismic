@@ -1,6 +1,6 @@
 ---
 title: "A simple introduction to seismic"
-output: rmarkdown::html_vignette
+output: github_document
 vignette: >
   %\VignetteIndexEntry{A simple introduction to seismic}
   %\VignetteEngine{knitr::rmarkdown}

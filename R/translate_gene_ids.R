@@ -24,7 +24,7 @@ translate_gene_ids <- function(sscore, from = "mmu_ensembl", to = "hsa_entrez", 
   }
 
   all_names <- unique(rownames(sscore))
-
+  
   #check gene mapping table
   if (!is.null(gene_mapping_table)) {
     if (!is.data.frame(gene_mapping_table) && !is.data.table(gene_mapping_table) && !is.tibble(gene_mapping_table)) {
@@ -41,7 +41,7 @@ translate_gene_ids <- function(sscore, from = "mmu_ensembl", to = "hsa_entrez", 
   }else{
     gene_mapping_table <- mmu_hsa_mapping
   }
-
+  
   # currently only supports mmu_hsa_mapping (which is automatically loaded from internal data object sysdata.rda)
   if (!any(all_names %in% gene_mapping_table[[from]])) {
     stop("None of the rownames of sscore could be found in ", from, " identifiers. Please check.")
@@ -51,13 +51,13 @@ translate_gene_ids <- function(sscore, from = "mmu_ensembl", to = "hsa_entrez", 
   gene_mapping_table <- gene_mapping_table[!duplicated(gene_mapping_table),]
 
   #remove rows with NA values
-  gene_mapping_table <- gene_mapping_table[!is.na(gene_mapping_table$from) & !is.na(gene_mapping_table$to),]
-
+  gene_mapping_table <- gene_mapping_table[!is.na(gene_mapping_table[[from]]) & !is.na(gene_mapping_table[[to]]),]
+  
   # check multi_mapping parameters
   if (!multi_mapping %in% c("mean", "sum")) {
     stop("multi_mapping can only be either 'mean' or 'sum'")
   }
-
+ 
   # filter mapping to only relevant entries
   all_mapping <- unique(gene_mapping_table[, c(from, to), with = F])
   setnames(all_mapping, c("from", "to"))
@@ -68,7 +68,7 @@ translate_gene_ids <- function(sscore, from = "mmu_ensembl", to = "hsa_entrez", 
   if (multi_mapping == "mean") {
     gene_fac_mat <- sweep_sparse(gene_fac_mat, margin = 1, stats = Matrix::rowSums(gene_fac_mat), fun = "/")
   }
-
+  
   # transform identifiers and return resulting matrix
   return(gene_fac_mat %*% sscore[match(all_mapping$from, rownames(sscore)), ])
 }

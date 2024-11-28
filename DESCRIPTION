@@ -1,6 +1,6 @@
 Package: seismicGWAS
 Title: Single-cell Expression Investigation for Study of Molecular Interactions and Connections
-Version: 0.98.1
+Version: 1.0.0
 Authors@R: c(
     person("Qiliang", "Lai", , "ql29@rice.edu", role = c("aut", "cre")),
     person("Ruth", "Dannenfelser", email="rtdn@rice.edu", role = c("aut"),

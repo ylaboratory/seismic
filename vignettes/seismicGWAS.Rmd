@@ -115,28 +115,26 @@ informative, they are not as directly interpretable and are driven by genes from
 other cell types or are somewhat cell type specific but not associated with
 the given trait.
 
-Next, to aid in result interpretation we make use of the `biomaRt` package to
-convert entrez ids to gene symbols.
+Next, to aid in result interpretation we convert the Entrez gene id to human-readable 
+gene symbols using mouse genome wide annotation database (org.Hs.edg.db) and AnnotationDbi.
 ```{r message=FALSE}
-# convert ids to symbols using biomaRt
-library(biomaRt)
+# convert ids to symbols using org.mm.eg.db and AnnotationDbi
+library(org.Hs.eg.db) #make sure it has been installed
+hsa.map <- mapIds(org.Hs.eg.db,  keys = t2d_beta_inf_genes$gene, keytype = "ENTREZID",
+                                 column = "SYMBOL")
 
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-hsa.map <- getBM(attributes = c('entrezgene_id', 'hgnc_symbol'), 
-                 filters = 'entrezgene_id', 
-                 values = t2d_beta_inf_genes$gene, 
-                 mart = ensembl)
+hsa.map <- stack(hsa.map)
+colnames(hsa.map) <- c("symbol", "entrezid")
 
-hsa.map$entrezgene_id <- as.character(hsa.map$entrezgene_id)
 t2d_beta_inf_genes <- merge(t2d_beta_inf_genes, hsa.map, 
-                            by.x='gene', by.y='entrezgene_id')
+                            by.x='gene', by.y='entrezid')
 ```
 
 We can also use the gene symbols to label the influential points in the
 influential gene plot.
 ```{r, fig.width=4,fig.height=3}
 # plot influential genes
-plot_inf_genes(t2d_beta_inf_genes, gene_col = 'hgnc_symbol', num_labels = 5)
+plot_inf_genes(t2d_beta_inf_genes, gene_col = 'symbol', num_labels = 5)
 ```
 
 # Section 2: running _seismicGWAS_ on Tabula Muris Senis

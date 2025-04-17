@@ -27,10 +27,14 @@ To install the _seismicGWAS_ R package first clone the _seismic_ repo and then
 use devtools within R to point to _seismic_ and install. The R environment version
 should be 4.0.0 or higher. 
 
-```bash
-
+First download the repository to your local machine, and then directly install it in R:
 ```R
 devtools::install(path_to_seismic_folder)
+library('seismicGWAS')
+```
+Or alternatively, you can install the package directly from GitHub using the following command:
+```R
+devtools::install_github("ylaboratory/seismicGWAS")
 library('seismicGWAS')
 ```
 

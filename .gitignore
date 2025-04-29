@@ -1,4 +1,13 @@
 *.Rproj*
 .Rproj.user
 .Rhistory
+*.html
+
+###pkgdown files
 docs
+inst
+_pkgdown.yml
+
+###extra tutorials for pkgdown
+vignettes/*
+!vignettes/seismicGWAS.Rmd

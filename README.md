@@ -1,5 +1,5 @@
 # _seismic_: Single-cell Expression Integration System for Mapping genetically Implicated Cell types
-This repository contains code for the R package [_seismicGWAS_](https://github.com/ylaboratory/seismic), a implementation of the 
+This repository contains code for the R package [_seismicGWAS_](https://github.com/ylaboratory/seismic), an implementation of the 
 _seismic_ computational framework for mapping genetically implicated cell types 
 and their driver genes in complex traits and diseases,
 by integrating GWAS summary statistics and single cell expression data.

@@ -1,7 +1,8 @@
-# _seismic_: Single-cell Expression Investigation for Study of Molecular Interactions and Connections
-This repository contains code for the R package _seismicGWAS_ a method for
-calculating cell type-trait associations
-given GWAS and single cell RNA-sequencing data.
+# _seismic_: Single-cell Expression Integration System for Mapping genetically Implicated Cell types
+This repository contains code for the R package [_seismicGWAS_](https://github.com/ylaboratory/seismic), an implementation of the 
+_seismic_ computational framework for mapping genetically implicated cell types 
+and their driver genes in complex traits and diseases,
+by integrating GWAS summary statistics and single cell expression data.
 
 ## Citation
 
@@ -23,14 +24,18 @@ this process.
 ![method overview](man/figures/seismic_overview.png)
 
 ## Installation and dependencies
-To install the _seismicGWAS_ R package first clone the _seismic_ repo and then 
+To install the [seismicGWAS](https://github.com/ylaboratory/seismic) R package first clone the _seismic_ repo and then 
 use devtools within R to point to _seismic_ and install. The R environment version
 should be 4.0.0 or higher. 
 
-```bash
-
+First download the repository to your local machine, and then directly install it in R:
 ```R
 devtools::install(path_to_seismic_folder)
+library('seismicGWAS')
+```
+Or alternatively, you can install the package directly from GitHub using the following command:
+```R
+devtools::install_github("ylaboratory/seismicGWAS")
 library('seismicGWAS')
 ```
 
@@ -40,8 +45,6 @@ which will be installed automatically.
 ## Usage
 Below we quickly show how to use _seismicGWAS_ to calcuate cell
 type-trait associations for the sample data included in the package. 
-Full usage instructions, including a walk through of all major functions
-can be found in the [vignette](https://github.com/ylaboratory/seismic/tree/master/vignettes/seismicGWAS.md).
 
 ```R
 # calculate cell type specificity scores using included sample data
@@ -62,3 +65,10 @@ get_ct_trait_associations(tmfacs_sscore_hsa, t2d_magma)
 # estimate running time: 10 seconds
 find_inf_genes("Pancreas.beta cell", tmfacs_sscore_hsa, t2d_magma)
 ```
+
+For full usage details, including a walk through of all major functions and 
+the extra upstream data preprocessing instructions, please check the [official website](https://ylaboratory.github.io/seismicGWAS-page/), which includes the following contents:
+
+- [Introduction and walk through](https://ylaboratory.github.io/seismicGWAS-page/articles/seismicGWAS.html)
+- [GWAS preprocessing](https://ylaboratory.github.io/seismicGWAS-page/articles/GWAS_processing.html)
+- [scRNA-seq preprocessing](https://ylaboratory.github.io/seismicGWAS-page/articles/scRNA-seq_processing.html)

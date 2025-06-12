@@ -1,0 +1,27 @@
+url: https://ylaboratory.github.io/seismic/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bs_assets: "local"
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+    btn-border-radius: 0.25rem
+
+navbar:
+  left:
+    - text: "Get started"
+      href: index.html
+    
+    - text: "Introduction"
+      href: "articles/seismicGWAS.html"
+
+    - text: "Data processing"
+      menu:
+        - text: "GWAS preprocessing"
+          href: "articles/GWAS_processing.html"
+        - text: "scRNA-seq preprocessing"
+          href: "articles/scRNA-seq_processing.html"
+
+    - text: "Reference"
+      href: reference/index.html

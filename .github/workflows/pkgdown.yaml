@@ -39,7 +39,12 @@ jobs:
       - name: Install Bioconductor packages
         run: |
           Rscript -e 'if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager")'
-          Rscript -e 'BiocManager::install(c("org.Hs.eg.db", "AnnotationDbi", "scfind"))'
+          Rscript -e 'BiocManager::install(c("org.Hs.eg.db", "AnnotationDbi"))'
+
+      - name: Install additional packages from GitHub
+        run: |
+          Rscript -e 'if (!requireNamespace("remotes", quietly=TRUE)) install.packages("remotes")'
+          Rscript -e 'remotes::install_github("hemberg-lab/scfind")'
 
       - name: Install package dependencies
         run: |

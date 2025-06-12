@@ -21,8 +21,7 @@ Imports:
     speedglm,
     SummarizedExperiment,
     AnnotationDbi,
-    org.Hs.eg.db,
-    scfind
+    org.Hs.eg.db
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
@@ -33,5 +32,6 @@ LazyData: true
 LazyDataCompression: xz
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    scfind
 VignetteBuilder: knitr

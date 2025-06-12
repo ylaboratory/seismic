@@ -1,6 +1,6 @@
 ---
 title: 'A simple introduction to seismicGWAS'
-output: github_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{A simple introduction to seismic}
   %\VignetteEngine{knitr::rmarkdown}
@@ -155,6 +155,7 @@ package.
 # if scFind is not installed can install with devtools
 # devtools::install_github("hemberg-lab/scfind")
 library(scfind)
+library(SingleCellExperiment)
 sce_panc <- readRDS(url(tmfacs["Pancreas"]))
 ```
 
@@ -163,7 +164,7 @@ exist, or one did not exist with our desired specificity,
 we could create it by clustering, combining, or using other metadata and adding
 to the SCE object before continuing.
 ```{r}
-SingleCellExperiment::colData(sce_panc)
+colData(sce_panc)
 ```
 The `cell_type1` field contains the cell annotations that we can use for
 calculating cell specificity scores. Right now there are some `NA` values for

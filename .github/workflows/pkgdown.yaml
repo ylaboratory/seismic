@@ -32,10 +32,19 @@ jobs:
           use-public-rspm: true
           bioc-version: 'release'
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
+      - name: Install CRAN tools
+        run: |
+          Rscript -e 'install.packages(c("remotes", "pkgdown", "sessioninfo"))'
+
+      - name: Install Bioconductor packages
+        run: |
+          Rscript -e 'if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager")'
+          Rscript -e 'BiocManager::install(c("org.Hs.eg.db", "AnnotationDbi", "scfind"))'
+
+      - name: Install package dependencies
+        run: |
+          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

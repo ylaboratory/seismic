@@ -41,6 +41,11 @@ jobs:
         with:
           use-public-rspm: true
           bioc-version: 'release'
+      
+      - name: Install Bioconductor packages
+        run: |
+           Rscript -e 'if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager")'
+           Rscript -e 'BiocManager::install(c("org.Hs.eg.db", "AnnotationDbi", "scfind"))'
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

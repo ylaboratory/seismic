@@ -62,6 +62,7 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
+<p>If you use <em>seismicGWAS</em> we ask that you cite our paper:</p>
 <blockquote>
 <p>Disentangling associations between complex traits and cell types with <em>seismic</em>. Lai Q, Dannenfelser R, Roussarie JP, Yao V. BioRxiv. April 2024.</p>
 </blockquote>
@@ -70,9 +71,8 @@
 <h2 id="about">About<a class="anchor" aria-label="anchor" href="#about"></a>
 </h2>
 <p>Integrating single-cell RNA sequencing (scRNA-seq) with Genome-Wide Association Studies (GWAS) can help reveal GWAS-associated cell types furthering our understanding of the cell-type-specific biological processes underlying complex traits and disease. In order to rapidly and accurately pinpoint associations, we develop a novel framework, <em>seismic</em>, which characterizes cell types using a new specificity score. As part of the <em>seismic</em> framework, the specific genes driving cell type-trait associations can easily be accessed and analyzed, enabling further biological insights. The following figure depicts a high level overview of this process.</p>
-<div class="float">
-<img src="reference/figures/seismic_overview.png" alt="method overview"><div class="figcaption">method overview</div>
-</div>
+<figure><img src="reference/figures/seismic_overview.png" alt=""><figcaption><b>Overview of seismic.</b> <i>seismic</i> allows for a flexible set of cell type labels or granularities, ranging from broader cell classes to specifically defined cell types, before calculating a novel gene specificity score for each of the corresponding cell characterizations, capturing both the magnitude and consistency of gene expression. These cell-type-level gene specificity scores are then integrated with MAGMA z-scores using a regression model to assess the statistical significance of cell type-trait associations, under the assumption that disease-critical genes are more specific to the implicated cell type.
+</figcaption></figure>
 </div>
 <div class="section level2">
 <h2 id="installation-and-dependencies">Installation and dependencies<a class="anchor" aria-label="anchor" href="#installation-and-dependencies"></a>
@@ -86,7 +86,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ylaboratory/seismicGWAS"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ylaboratory/seismic" class="external-link">'seismicGWAS'</a></span><span class="op">)</span></span></code></pre></div>
-<p>The package require several dependencies which are listed in the <code>DESCRIPTION</code> file, which will be installed automatically.</p>
+<p>The package requires several dependencies which are listed in the <code>DESCRIPTION</code> file, which will be installed automatically.</p>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -94,27 +94,27 @@
 <p>Below we quickly show how to use <em>seismicGWAS</em> to calcuate cell type-trait associations for the sample data included in the package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate cell type specificity scores using included sample data</span></span>
-<span><span class="co"># estimate running time: less than 1 minute</span></span>
+<span><span class="co"># estimated running time: less than 1 minute</span></span>
 <span><span class="va">tmfacs_sscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calc_specificity.html">calc_specificity</a></span><span class="op">(</span><span class="va">tmfacs_sce_small</span>, ct_label_col<span class="op">=</span><span class="st">'cluster_name'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># convert mouse gene identifiers to human ones that match data in GWAS summary data</span></span>
 <span><span class="co"># from MAGMA</span></span>
-<span><span class="co"># estimate running time: 3 seconds</span></span>
+<span><span class="co"># estimated running time: 3 seconds</span></span>
 <span><span class="va">tmfacs_sscore_hsa</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/translate_gene_ids.html">translate_gene_ids</a></span><span class="op">(</span><span class="va">tmfacs_sscore</span>, from<span class="op">=</span><span class="st">'mmu_symbol'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># calculate cell type-trait associations for type 2 diabetes</span></span>
-<span><span class="co"># estimate running time: less than 1 minutes</span></span>
+<span><span class="co"># estimated running time: less than 1 minutes</span></span>
 <span><span class="fu"><a href="reference/get_ct_trait_associations.html">get_ct_trait_associations</a></span><span class="op">(</span><span class="va">tmfacs_sscore_hsa</span>, <span class="va">t2d_magma</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># find the influential genes for a significant cell type-trait association</span></span>
 <span><span class="co"># in type 2 diabetes</span></span>
-<span><span class="co"># estimate running time: 10 seconds</span></span>
+<span><span class="co"># estimated running time: 10 seconds</span></span>
 <span><span class="fu"><a href="reference/find_inf_genes.html">find_inf_genes</a></span><span class="op">(</span><span class="st">"Pancreas.beta cell"</span>, <span class="va">tmfacs_sscore_hsa</span>, <span class="va">t2d_magma</span><span class="op">)</span></span></code></pre></div>
-<p>For full usage details, including a walk through of all major functions and the extra upstream data preprocessing instructions, please check the <a href="https://ylaboratory.github.io/seismicGWAS-page/">official website</a>, which includes the following contents:</p>
+<p>For full usage details, including a walk through of all major functions and the extra upstream data preprocessing instructions, please check out our more extensive tutorial:</p>
 <ul>
-<li><a href="https://ylaboratory.github.io/seismicGWAS-page/articles/seismicGWAS.html">Introduction and walk through</a></li>
-<li><a href="https://ylaboratory.github.io/seismicGWAS-page/articles/GWAS_processing.html">GWAS preprocessing</a></li>
-<li><a href="https://ylaboratory.github.io/seismicGWAS-page/articles/scRNA-seq_processing.html">scRNA-seq preprocessing</a></li>
+<li><a href="https://ylaboratory.github.io/seismic/articles/seismicGWAS.html">Introduction and walk through</a></li>
+<li><a href="https://ylaboratory.github.io/seismic/articles/GWAS_processing.html">GWAS preprocessing</a></li>
+<li><a href="https://ylaboratory.github.io/seismic/articles/scRNA-seq_processing.html">scRNA-seq preprocessing</a></li>
 </ul>
 </div>
 </div>

@@ -244,7 +244,7 @@ database (org.Hs.edg.db) and AnnotationDbi.</p>
 <span><span class="va">hsa.map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/stack.html" class="external-link">stack</a></span><span class="op">(</span><span class="va">hsa.map</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">hsa.map</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"symbol"</span>, <span class="st">"entrezid"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">t2d_beta_inf_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">t2d_beta_inf_genes</span>, <span class="va">hsa.map</span>, </span>
+<span><span class="va">t2d_beta_inf_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">t2d_beta_inf_genes</span>, <span class="va">hsa.map</span>, </span>
 <span>                            by.x<span class="op">=</span><span class="st">'gene'</span>, by.y<span class="op">=</span><span class="st">'entrezid'</span><span class="op">)</span></span></code></pre></div>
 <p>We can also use the gene symbols to label the influential points in
 the influential gene plot.</p>

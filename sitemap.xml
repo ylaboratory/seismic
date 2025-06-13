@@ -1,7 +1,9 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://ylaboratory.github.io/seismic/404.html</loc></url>
 <url><loc>https://ylaboratory.github.io/seismic/LICENSE-text.html</loc></url>
+<url><loc>https://ylaboratory.github.io/seismic/articles/GWAS_processing.html</loc></url>
 <url><loc>https://ylaboratory.github.io/seismic/articles/index.html</loc></url>
+<url><loc>https://ylaboratory.github.io/seismic/articles/scRNA-seq_processing.html</loc></url>
 <url><loc>https://ylaboratory.github.io/seismic/articles/seismicGWAS.html</loc></url>
 <url><loc>https://ylaboratory.github.io/seismic/authors.html</loc></url>
 <url><loc>https://ylaboratory.github.io/seismic/index.html</loc></url>

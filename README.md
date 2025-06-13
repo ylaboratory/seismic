@@ -88,6 +88,6 @@ For full usage details, including a walk through of all major functions and
 the extra upstream data preprocessing instructions, please check out
 our more extensive tutorial:
 
-- [Introduction and walk through](https://ylaboratory.github.io/seismicGWAS-page/articles/seismicGWAS.html)
-- [GWAS preprocessing](https://ylaboratory.github.io/seismicGWAS-page/articles/GWAS_processing.html)
-- [scRNA-seq preprocessing](https://ylaboratory.github.io/seismicGWAS-page/articles/scRNA-seq_processing.html)
+- [Introduction and walk through](https://ylaboratory.github.io/seismic/articles/seismicGWAS.html)
+- [GWAS preprocessing](https://ylaboratory.github.io/seismic/articles/GWAS_processing.html)
+- [scRNA-seq preprocessing](https://ylaboratory.github.io/seismic/articles/scRNA-seq_processing.html)

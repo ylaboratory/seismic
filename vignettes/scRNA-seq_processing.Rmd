@@ -33,7 +33,7 @@ can be downloaded from the _seismic_ [zenodo data repository](https://zenodo.org
 We will assume that users wanting to follow this tutorial have downloaded and unzipped the `all_data` folder
 in before beginning.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r show-imports, eval=FALSE, echo=TRUE}
 library(SingleCellExperiment)
 library(dplyr)
 library(magrittr)
@@ -48,7 +48,7 @@ and the number of genes expressed in each cell.
 Some widely used metric to evaluate the data quality includes: sequencing depth,
 number of genes detected, mitochondrial gene percentage, etc.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 # check total counts
 example_sce$tot_counts <- colSums(assay(example_sce, "counts"))
 
@@ -64,7 +64,7 @@ In our data these genes are not present. Thus, we only filter cells based on the
 Additionally, in this dataset we have cell type annotations - since these are an important part of detecting associations
 we remove cells without such information.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 # filter by total counts and detected genes
 example_sce <- example_sce[, example_sce$tot_counts > 2000 & example_sce$detected_genes > 2000]
 
@@ -93,7 +93,7 @@ example_sce
 
 We can also remove genes with low expression, since these genes are less likely to be informative for downstream analysis.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 # number of cells expressing each gene
 rowData(example_sce)$num_cells <- rowSums(assay(example_sce ,"counts") > 0)
 
@@ -109,7 +109,7 @@ As recommended by [single-cell best practices](https://www.sc-best-practices.org
 we then use [scran](https://bioconductor.org/packages/release/bioc/html/scran.html) to estimate the 
 per-cell normalization factor based on cell pooling.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 library(scran)
 
 cell_pooling <- quickCluster(example_sce,  assay.type = "counts") 
@@ -126,7 +126,7 @@ example_sce <- logNormCounts(example_sce, size.factors = size_factor )
 The _seismic_ framework requires a column of cell metadata to specify the analysis granularity.
 In our analysis we care about cell types and tissue-specific effects, so we combine them together.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 example_sce$cell_type <- ifelse(!is.na(example_sce$free_annotation), 
         paste0(example_sce$tissue,".",example_sce$free_annotation), paste0(example_sce$tissue,".",example_sce$cell_ontology_class))
 ```
@@ -139,7 +139,7 @@ _seismic_ analysis pipeline.
 As a proof of concept we use the processed gene-level MAGMA z-scores for type 2 diabetes
 included in the _seismic_ package.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 library(seismicGWAS)
 
 # calculate specificity score

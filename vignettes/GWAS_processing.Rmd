@@ -43,7 +43,7 @@ base-pair position, and p-value.
 
 Additionally, we strongly recommend including SNP IDs to facilitate MAGMA analysis.
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 library(magrittr)
 library(dplyr)
 
@@ -76,7 +76,7 @@ First the chain object `hg38ToHg19.over.chain.gz`
 must be downloaded from the [UCSC website](https://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/)
 and unzipped. 
 
-```{r show-only, eval=FALSE, echo=TRUE}
+```{r eval=FALSE, echo=TRUE}
 library('GenomicRanges')
 library('IRanges')
 library('rtracklayer')

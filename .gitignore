@@ -11,3 +11,5 @@ _pkgdown.yml
 ###extra tutorials for pkgdown
 vignettes/*
 !vignettes/seismicGWAS.Rmd
+!vignettes/GWAS_processing.Rmd
+!vignettes/scRNA-seq_processing.Rmd

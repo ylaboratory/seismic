@@ -1,0 +1,174 @@
+---
+title: "scRNA-seq data preprocessing for _seismic_ input"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{scRNA-seq data preprocessing for seismic input}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The _seismic_ framework takes a SingleCellExperiment object as input while
+requiring a column of cell metadata to specify the analysis granularity. 
+Before running a _seismic_ analysis, the scRNAseq data should be preprocessed for
+optimal usage of the _seismic_ framework. We illustrate this process with
+an example below with many tips adapted from
+[single-cell best practices](https://www.sc-best-practices.org/preprocessing_visualization/normalization.html).
+
+
+## Step 1: Load scRNA-seq data and accompanying metadata
+
+For simplicity, we assume that we already have the scRNA-seq data and metadata
+in the form of a SingleCellExperiment object. The sample data object used here
+can be downloaded from the _seismic_ [zenodo data repository](https://zenodo.org/records/15362163).
+
+We will assume that users wanting to follow this tutorial have downloaded and unzipped the `all_data` folder
+in before beginning.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+library(SingleCellExperiment)
+library(dplyr)
+library(magrittr)
+
+example_sce <- readRDS('all_data/example_data/sample_expr.rds') # can read in your own SCE file to replace
+```
+
+## Step 2: Assess data quality
+
+We check data quality by looking at the distribution of gene expression
+and the number of genes expressed in each cell. 
+Some widely used metric to evaluate the data quality includes: sequencing depth,
+number of genes detected, mitochondrial gene percentage, etc.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+# check total counts
+example_sce$tot_counts <- colSums(assay(example_sce, "counts"))
+
+# check total mitrochondrial counts
+example_sce$mito_ratio <- colSums(assay(example_sce, "counts")[grep("^Mt-", rownames(example_sce)), ]) / example_sce$tot_counts
+
+# check the number of genes detected
+example_sce$detected_genes <- colSums(assay(example_sce, "counts") > 0)
+```
+
+Typically mitochondrial genes will be named with "Mt-" prefix in mouse and "MT-" prefix in human data.
+In our data these genes are not present. Thus, we only filter cells based on the total counts and the number of detected genes. 
+Additionally, in this dataset we have cell type annotations - since these are an important part of detecting associations
+we remove cells without such information.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+# filter by total counts and detected genes
+example_sce <- example_sce[, example_sce$tot_counts > 2000 & example_sce$detected_genes > 2000]
+
+# filter by cell ontology information
+example_sce <- example_sce[,!is.na(example_sce$cell_ontology_id)]
+
+example_sce
+```
+
+```console
+## class: SingleCellExperiment 
+## dim: 23341 7346 
+## metadata(0):
+## assays(2): counts logcounts
+## rownames(23341): 0610005C13Rik 0610007C21Rik ... l7Rn6
+##   zsGreen-transgene
+## rowData names(0):
+## colnames: NULL
+## colData names(42): nReads orig.ident ... mito_ratio detected_genes
+## reducedDimNames(0):
+## mainExpName: RNA
+## altExpNames(0):
+```
+
+### Optional Step: Remove genes with low expression to alleviate memory and computation burden
+
+We can also remove genes with low expression, since these genes are less likely to be informative for downstream analysis.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+# number of cells expressing each gene
+rowData(example_sce)$num_cells <- rowSums(assay(example_sce ,"counts") > 0)
+
+# number of total counts deteced for each gene
+rowData(example_sce)$num_counts <- rowSums(assay(example_sce ,"counts"))
+
+example_sce <- example_sce[rowData(example_sce)$num_cells >= 5 & rowData(example_sce)$num_counts >= 10,]
+```
+
+## Step 3: Normalize the data
+
+As recommended by [single-cell best practices](https://www.sc-best-practices.org/preprocessing_visualization/normalization.html),
+we then use [scran](https://bioconductor.org/packages/release/bioc/html/scran.html) to estimate the 
+per-cell normalization factor based on cell pooling.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+library(scran)
+
+cell_pooling <- quickCluster(example_sce,  assay.type = "counts") 
+
+# factor calculation
+size_factor <- calculateSumFactors(example_sce, cluster = cell_pooling, min.mean = 0.1, assay.typ = "counts")
+
+# normalize
+example_sce <- logNormCounts(example_sce, size.factors = size_factor )
+```
+
+## Step 4: Choose analysis granularity
+
+The _seismic_ framework requires a column of cell metadata to specify the analysis granularity.
+In our analysis we care about cell types and tissue-specific effects, so we combine them together.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+example_sce$cell_type <- ifelse(!is.na(example_sce$free_annotation), 
+        paste0(example_sce$tissue,".",example_sce$free_annotation), paste0(example_sce$tissue,".",example_sce$cell_ontology_class))
+```
+
+## Step 5: Run the _seismic_ analysis
+
+After going through the data processing steps we can then proceed with the standard
+_seismic_ analysis pipeline.
+
+As a proof of concept we use the processed gene-level MAGMA z-scores for type 2 diabetes
+included in the _seismic_ package.
+
+```{r show-only, eval=FALSE, echo=TRUE}
+library(seismicGWAS)
+
+# calculate specificity score
+sscore  <- calc_specificity(sce = example_sce, ct_label_col = "cell_type")
+
+# map genes from mouse to human 
+sscore_hsa <- translate_gene_ids(sscore, from = "mmu_symbol")
+
+# calculate associations
+ct_association <- get_ct_trait_associations(sscore = sscore_hsa, magma = t2d_magma)
+
+head(ct_association)
+```
+
+```console
+##                                                            cell_type
+##                                                               <char>
+## 1:                                                Pancreas.beta cell
+## 2:                                        Pancreas.pancreatic A cell
+## 3:                                        Pancreas.pancreatic D cell
+## 4:            Large_Intestine.Lgr5- amplifying undifferentiated cell
+## 5:                            Large_Intestine.Goblet cell (Proximal)
+## 6: Brain_Non-Myeloid.excitatory neurons and some neuronal stem cells
+##          pvalue         FDR
+##           <num>       <num>
+## 1: 6.330263e-06 0.000481100
+## 2: 6.691778e-05 0.002542876
+## 3: 4.749954e-04 0.012033218
+## 4: 2.103253e-02 0.306608542
+## 5: 2.292316e-02 0.306608542
+## 6: 2.420594e-02 0.306608542
+```

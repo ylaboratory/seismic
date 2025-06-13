@@ -1,0 +1,6 @@
+citHeader("If you use seismicGWAS we ask that you cite our paper:")
+
+citEntryText(
+  "Disentangling associations between complex traits and cell types with _seismic_. ",
+  "Lai Q, Dannenfelser R, Roussarie JP, Yao V. BioRxiv. April 2024."
+)

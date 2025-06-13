@@ -33,5 +33,7 @@ LazyDataCompression: xz
 Suggests: 
     knitr,
     rmarkdown,
+    rtracklayer,
+    dplyr,
     scfind
 VignetteBuilder: knitr

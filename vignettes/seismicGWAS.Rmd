@@ -36,6 +36,7 @@ library(seismicGWAS)
 
 
 # Section 1: running _seismic_ on the included sample data
+
 _seismicGWAS_ includes a preloaded small single cell RNAseq dataset in the
 form of a SingleCellExperiment object `tmfacs_sce_small` 
 
@@ -60,6 +61,7 @@ The first step of _seismic_ is to calculate cell type specificity scores
 which will be used for subsequent cell type-trait association calculations
 and influential gene analyses. Here we provide the sample SingleCellExperiment
 object and column in the data containing cell type labels `cluster_name`.
+
 ```{r}
 tmfacs_sscore <- calc_specificity(tmfacs_sce_small, ct_label_col='cluster_name')
 head(tmfacs_sscore[, 1:3]) # show a truncated view of the matrix
@@ -70,12 +72,14 @@ Tabula Muris. To associate with human GWAS traits we need to convert the gene
 identifiers. For convenience _seismicGWAS_ has a function for translating between
 gene ids for a specificity score matrix. We change here from mouse gene symbols
 to human entrez ids to match the MAGMA data.
+
 ```{r}
 tmfacs_sscore_hsa <- translate_gene_ids(tmfacs_sscore, from='mmu_symbol')
 head(tmfacs_sscore_hsa[,1:3]) # show a truncated view of the matrix
 ```
 
 ## Calculating cell type trait associations
+
 We can now get cell type-trait associations for the RA and Type 2 Diabetes data
 and plot the top 20 associations per trait. Default plots show FDR corrected
 p-values plotted on a -log scale so that stronger associations appear at the
@@ -94,6 +98,7 @@ plot_top_associations(t2d, limit = 20)
 ```
 
 ## Influential gene analysis
+
 With _seismicGWAS_ we can also look at the genes driving a particular cell
 type-trait association, in a process we call influential gene analysis. Here,
 we need to select a particular cell type (in our example we choose
@@ -109,6 +114,7 @@ ct <- "Pancreas.beta cell"
 t2d_beta_inf_genes <- find_inf_genes(ct, tmfacs_sscore_hsa, t2d_magma)
 head(t2d_beta_inf_genes)
 ```
+
 Note: Only genes with positive contributions to the cell type-trait association
 are marked influential by default. While negative contributions may be
 informative, they are not as directly interpretable and are driven by genes from
@@ -117,6 +123,7 @@ the given trait.
 
 Next, to aid in result interpretation we convert the Entrez gene id to human-readable 
 gene symbols using mouse genome wide annotation database (org.Hs.edg.db) and AnnotationDbi.
+
 ```{r message=FALSE}
 # convert ids to symbols using org.mm.eg.db and AnnotationDbi
 library(org.Hs.eg.db) #make sure it has been installed
@@ -132,6 +139,7 @@ t2d_beta_inf_genes <- merge(t2d_beta_inf_genes, hsa.map,
 
 We can also use the gene symbols to label the influential points in the
 influential gene plot.
+
 ```{r, fig.width=4,fig.height=3}
 # plot influential genes
 plot_inf_genes(t2d_beta_inf_genes, gene_col = 'symbol', num_labels = 5)
@@ -149,8 +157,10 @@ use the [`scFind`](https://github.com/hemberg-lab/scfind) package to grab
 tissue level SingleCellExperiment objects. 
 
 ## Grabbing Tabula Muris pancreas data with scFind
+
 For simplicity, we grab one tissue type's worth of data from the `scfind`
 package.
+
 ```{r message=FALSE}
 # if scFind is not installed can install with devtools
 # devtools::install_github("hemberg-lab/scfind")
@@ -163,9 +173,11 @@ Explore the SCE object to find the relevant cell type column. If one did not
 exist, or one did not exist with our desired specificity,
 we could create it by clustering, combining, or using other metadata and adding
 to the SCE object before continuing.
+
 ```{r}
 colData(sce_panc)
 ```
+
 The `cell_type1` field contains the cell annotations that we can use for
 calculating cell specificity scores. Right now there are some `NA` values for
 field. Lets remove them before continuing.
@@ -177,8 +189,10 @@ colData(sce_panc_filt)
 ```
 
 ## Calculating cell type-trait associations
+
 Now we can calculate the cell type specificity scores we will need for other
 downstream functions.
+
 ```{r}
 # calculate cell specificity
 panc_sscore <- calc_specificity(sce_panc_filt, ct_label_col='cell_type1')

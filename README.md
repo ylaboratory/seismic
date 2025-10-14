@@ -9,7 +9,8 @@ by integrating GWAS summary statistics and single cell expression data.
 If you use _seismicGWAS_ we ask that you cite our paper:
 
 > Disentangling associations between complex traits and cell types with _seismic_.
-> Lai Q, Dannenfelser R, Roussarie JP, Yao V. BioRxiv. April 2024.
+> Lai Q, Dannenfelser R, Roussarie JP, Yao V. Nature communications 16.1 (2025): 8744.
+> DOI: [10.1038/s41467-025-63753-z](https://doi.org/10.1038/s41467-025-63753-z)
 
 ## About
 
